@@ -12,17 +12,27 @@ import (
 
 func main() {
 	fmt.Println("creating fake data")
-	f, err := os.Create("FakeData.sql")
+	f, err := os.Create("schema.sql")
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	defer f.Close()
 	w := bufio.NewWriter(f)
-	TableName := "employee"
-
+	TableName := "leaves"
+	fmt.Fprintln(w, getTableHead2(TableName))
+	TableName = "employees"
 	fmt.Fprintln(w, getTableHead(TableName))
-	N := 1000
+	w.Flush()
+	f.Close()
+
+	f, err = os.Create(TableName + ".csv")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	w = bufio.NewWriter(f)
+	N := 10000
 	for i := 1; i <= N; i++ {
 		fname := fake.FirstName()
 		lname := fake.LastName()
@@ -37,24 +47,31 @@ func main() {
 		if i != i && managerID == 0 {
 			managerID = 1
 		}
-		fmt.Fprintf(w, "insert into %s (id, first_name,last_name,email,phone,job_title, branchId,  managerId) values", TableName)
-		fmt.Fprintf(w, "('%d','%s', '%s','%s', '%s', '%s','%d', '%d');\n",
+		fmt.Fprintf(w, "%d, %s, %s, %s, %s, %s, %d, %d\n",
 			i, fname, lname, email, phone, jobTitle, branchId, managerID)
 	}
 	w.Flush()
-
-	TableName = "Leaves"
-	fmt.Fprintln(w, getTableHead2(TableName))
+	f.Close()
+	TableName = "leaves"
+	f, err = os.Create(TableName + ".csv")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer f.Close()
+	w = bufio.NewWriter(f)
+	c := 1
 	for i := 1; i <= N; i++ {
-		l := 20 + rand.Intn(20)
-		for j := 0; j < l; j++ {
-			LDate := time.Date(rand.Intn(10)+2008, time.Month(rand.Intn(12)+1), rand.Intn(28)+1, 0, 0, 0, 0, time.UTC)
-			LeaveId := rand.Intn(20) + 1
-			fmt.Fprintf(w, "insert into %s (employeeId,LeaveDate,LeaveId) values", TableName)
-			fmt.Fprintf(w, "('%d','%s', '%d');\n",
-				i, LDate.Format("2006-01-02"), LeaveId)
+		for y := 2008; y < 2018; y++ {
+			l := 20 + rand.Intn(20)
+			for j := 0; j < l; j++ {
+				LDate := time.Date(y, time.Month(rand.Intn(12)+1), rand.Intn(28)+1, 0, 0, 0, 0, time.UTC)
+				LeaveId := rand.Intn(20) + 1
+				fmt.Fprintf(w, "%d, %d, %s, %d\n",
+					c, i, LDate.Format("2006-01-02"), LeaveId)
+				c += 1
+			}
 		}
-
 	}
 	w.Flush()
 
@@ -70,14 +87,13 @@ func getTableHead2(tn string) string {
 );`
 }
 
-// id, first_name,last_name,email,phone,job_title, branchId,  managerId
 func getTableHead(tn string) string {
 	return "DROP TABLE IF EXISTS " + tn + " CASCADE;\n create table " + tn + ` (
 	id SERIAL PRIMARY KEY,
 	first_name VARCHAR(50),
 	last_name VARCHAR(50),
 	email VARCHAR(80),
-	phone VARCHAR(15),
+	phone VARCHAR(25),
 	job_title VARCHAR(100),
 	branchId integer,
 	managerId integer 

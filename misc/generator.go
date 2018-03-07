@@ -11,6 +11,7 @@ import (
 )
 
 func main() {
+	N := 20000
 	fmt.Println("creating fake data")
 	f, err := os.Create("schema.sql")
 	if err != nil {
@@ -32,7 +33,6 @@ func main() {
 	}
 
 	w = bufio.NewWriter(f)
-	N := 100
 	for i := 1; i <= N; i++ {
 		fname := fake.FirstName()
 		lname := fake.LastName()
@@ -79,12 +79,13 @@ func main() {
 }
 
 func getTableHead2(tn string) string {
-	return "DROP TABLE IF EXISTS " + tn + " CASCADE;\n create table " + tn + ` (
+	return "DROP TABLE IF EXISTS " + tn + " CASCADE;\n CREATE TABLE " + tn + ` (
 	id SERIAL PRIMARY KEY,
-	employeeId Integer,
-	LeaveDate date,
-	LeaveId integer  
-);`
+	employee_id Integer,
+	leave_date date,
+	leave_id integer  
+);` + "\n CREATE INDEX date_idx ON " + tn + " (leave_date);" +
+		"\n CREATE INDEX employee_idx ON " + tn + " (employee_id);"
 }
 
 func getTableHead(tn string) string {
@@ -95,7 +96,7 @@ func getTableHead(tn string) string {
 	email VARCHAR(80),
 	phone VARCHAR(25),
 	job_title VARCHAR(100),
-	branchId integer,
-	managerId integer 
+	branch_id integer,
+	manager_id integer 
 );`
 }

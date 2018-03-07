@@ -32,7 +32,7 @@ func main() {
 	}
 
 	w = bufio.NewWriter(f)
-	N := 10000
+	N := 100
 	for i := 1; i <= N; i++ {
 		fname := fake.FirstName()
 		lname := fake.LastName()

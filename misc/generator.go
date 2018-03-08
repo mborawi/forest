@@ -37,7 +37,7 @@ func main() {
 	for i := 1; i <= N; i++ {
 		fname := fake.FirstName()
 		lname := fake.LastName()
-		email := fake.EmailAddress()
+		email := fmt.Sprintf("%s.%s@fakemail.com", fname, lname)
 		phone := fake.Phone()
 		jobTitle := fake.JobTitle()
 		branchId := rand.Intn(10) + 1

@@ -18,6 +18,7 @@ func main() {
 		fmt.Println(err)
 		return
 	}
+	rand.Seed(time.Now().Unix())
 	w := bufio.NewWriter(f)
 	TableName := "leaves"
 	fmt.Fprintln(w, getTableHead2(TableName))
@@ -64,18 +65,44 @@ func main() {
 	for i := 1; i <= N; i++ {
 		for y := 2008; y < 2018; y++ {
 			l := 20 + rand.Intn(20)
+			pm := 0
+			pd := 0
 			for j := 0; j < l; j++ {
-				LDate := time.Date(y, time.Month(rand.Intn(12)+1), rand.Intn(28)+1, 0, 0, 0, 0, time.UTC)
+				m := random(pm, 13)
+				d := random(pd, 30)
+				if m == 2 {
+					d = Max(d, 28)
+				}
+				LDate := time.Date(y, time.Month(m), d, 0, 0, 0, 0, time.UTC)
 				LeaveId := rand.Intn(20) + 1
 				fmt.Fprintf(w, "%d, %d, %s, %d\n",
 					c, i, LDate.Format("2006-01-02"), LeaveId)
 				c += 1
+				pm = m
+				pd = d
+				if pd > 27 {
+					pd = 0
+				}
+				if pm > 11 {
+					pm = 0
+				}
 			}
 		}
 	}
 	w.Flush()
 
 	//
+}
+
+func Max(x, y int) int {
+	if x > y {
+		return x
+	}
+	return y
+}
+
+func random(min, max int) int {
+	return rand.Intn(max-min) + min + 1
 }
 
 func getTableHead2(tn string) string {

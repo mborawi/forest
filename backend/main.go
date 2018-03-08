@@ -17,8 +17,9 @@ import (
 var db *gorm.DB
 
 func main() {
-	con := fmt.Sprintf("user=%s dbname=%s port=%s  sslmode=disable",
+	con := fmt.Sprintf("user=%s password=%s dbname=%s port=%s",
 		"mido",
+		"123",
 		"heat",
 		"5432")
 	var err error
@@ -27,25 +28,14 @@ func main() {
 		log.Fatalln("failed to connect database", err)
 	}
 	defer db.Close()
-
-	////
 	router := mux.NewRouter().StrictSlash(false)
 	router.HandleFunc("/api/individual/{id:[0-9]+}", listEmployeeLeaves)
 
 	log.Println("Launching Server Now on 8080...")
 	log.Fatal(http.ListenAndServe(":8080", router))
-	///
-	// m := models.Employee{}
-	// db.First(&m)
-
-	// fmt.Println(m)
 }
 
-type Result struct {
-	Count uint      `json:"count"`
-	Date  time.Time `json:"date"`
-}
-
+// list the employee leaves in the last year
 func listEmployeeLeaves(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.Atoi(vars["id"])
@@ -54,7 +44,9 @@ func listEmployeeLeaves(w http.ResponseWriter, r *http.Request) {
 	leaves := []models.Leave{}
 	db.Debug().
 		Where("employee_id = ?", id).
-		Where("leave_date >= ? AND leave_date < ?", past, now).
+		Where("leave_date >= ?", past).
+		Where("leave_date < ?", now).
+		Order("leave_date").
 		Find(&leaves)
 
 	results := []Result{}

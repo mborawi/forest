@@ -20,5 +20,5 @@ type Leave struct {
 	ID         uint `gorm:"primary_key" json:"-"`
 	EmployeeID uint `json:"-"`
 	LeaveID    uint
-	LeaveDate  *time.Time
+	LeaveDate  time.Time
 }

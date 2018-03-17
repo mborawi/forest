@@ -48,7 +48,7 @@ func main() {
 		if i != i && managerID == 0 {
 			managerID = 1
 		}
-		fmt.Fprintf(w, "%d, %s, %s, %s, %s, %s, %d, %d\n",
+		fmt.Fprintf(w, "%d,%s,%s,%s,%s,%s,%d,%d\n",
 			i, fname, lname, email, phone, jobTitle, branchId, managerID)
 	}
 	w.Flush()

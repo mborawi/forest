@@ -34,7 +34,7 @@
       <v-layout justify-center align-center>
         <v-flex xs12>
           <v-select
-          placeholder="First or last name"
+          placeholder="First or Family name"
           autocomplete
           :loading="loading"
           :items="items"
@@ -45,12 +45,10 @@
           dense
           @input="OnChange"
           ></v-select>
-          <vheatmap
-          year=2010
-          cellSize=12>
-            
-          </vheatmap> 
-          <!-- required -->
+          <vheatmap v-if="yearcounts.year!=null"
+          :CalendarData="yearcounts"
+          > </vheatmap> 
+
         </v-flex>
       </v-layout>
     </v-container>
@@ -71,7 +69,8 @@ export default {
     items: [],
     select: [],
     selected: null,
-    loading: false
+    loading: false,
+    yearcounts : {days: {}, year: null, title:"Not Data Available"},
   }),
   watch: {
     search (val) {
@@ -85,12 +84,14 @@ export default {
       .then((response)  =>  {
         this.loading = false;
           console.log(response.data);
+          this.yearcounts = response.data;
+          this.search = null;
         }, (error)  =>  {
           this.loading = false;
           console.log(error);
         });
 
-      console.log(this.select + "changed");
+      // console.log(this.select + "changed");
     },
     querySelections (v) {
       if (!v || v.length < 3 ){
@@ -98,12 +99,10 @@ export default {
         return;
       }
       this.loading = true;
-        // Simulated ajax query
         axios.get("/api/search?query="+v)
         .then((response)  =>  {
           this.loading = false;
           this.items = response.data;
-          // console.log(response.data);
         }, (error)  =>  {
           this.loading = false;
           console.log(error);
@@ -114,8 +113,5 @@ export default {
     components: {
       'vheatmap': vheatmap
     },
-    props: {
-      source: String
-    }
   }
   </script>

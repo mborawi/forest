@@ -70,20 +70,44 @@ func SearchHandler(w http.ResponseWriter, r *http.Request) {
 func listEmployeeLeaves(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.Atoi(vars["id"])
-	now := time.Now()
-	past := now.AddDate(-1, 0, 0)
+	// year := time.Now().Year() - 1
+	year := 2011
+
+	thisyear := time.Date(year, 12, 31, 0, 0, 0, 0, time.UTC)
+	past := thisyear.AddDate(-10, 0, 0)
 	leaves := []models.Leave{}
 	db.Debug().
 		Where("employee_id = ?", id).
 		Where("leave_date >= ?", past).
-		Where("leave_date < ?", now).
+		Where("leave_date < ?", thisyear).
 		Order("leave_date").
 		Find(&leaves)
 
-	results := []Result{}
+	occurneces := make(map[string]uint)
+	max := uint(0)
+	min := uint(1000)
 	for _, l := range leaves {
-		results = append(results, Result{Count: 1, Date: l.LeaveDate})
+		thisDate := l.LeaveDate.Format("02-01")
+		c := occurneces[thisDate]
+		c += 1
+		occurneces[thisDate] = c
+		if max < c {
+			max = c
+		}
+		if c < min {
+			min = c
+		}
+
 	}
+	res := result{
+		Year:  year,
+		Title: "Leaves in the last 10 years",
+		Days:  occurneces,
+		Max:   max,
+		Min:   min,
+	}
+
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(results)
+	json.NewEncoder(w).Encode(res)
+
 }

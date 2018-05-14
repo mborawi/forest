@@ -29,6 +29,7 @@ func main() {
 	defer db.Close()
 	router := mux.NewRouter().StrictSlash(false)
 	router.HandleFunc("/api/list/{id:[0-9]+}", listEmployeeLeaves)
+	router.HandleFunc("/api/list/{id:[0-9]+}/{yr:[0-9]+}", listEmployeeLeavesYears)
 	router.HandleFunc("/api/search", SearchHandler)
 	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("../frontend/static/"))))
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { http.ServeFile(w, r, "../frontend/static/index.html") })
@@ -109,5 +110,51 @@ func listEmployeeLeaves(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(res)
+
+}
+
+func listEmployeeLeavesYears(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, _ := strconv.Atoi(vars["id"])
+	yrs, _ := strconv.Atoi(vars["yr"])
+
+	thisyear := time.Now().Year()
+	results := []result{}
+	var res result
+	var leaves []models.Leave
+	e := models.Employee{}
+	db.
+		// Debug().
+		Find(&e, id)
+
+	for ; yrs >= 0; yrs-- {
+		st := time.Date(thisyear-yrs, 1, 1, 0, 0, 0, 0, time.UTC)
+		ft := st.AddDate(0, 12, 0).Add(-1 * time.Nanosecond)
+		res = result{}
+		res.Days = make(map[string]uint)
+		// LeaveDates := []time.Time{}
+		leaves = []models.Leave{}
+		db.
+			// Debug().
+			Where("employee_id = ?", id).
+			Where("leave_date >= ?", st).
+			Where("leave_date < ?", ft).
+			Order("leave_date").
+			Find(&leaves)
+		fmt.Println(len(leaves))
+		res.Title = fmt.Sprintf("Leaves for: %s %s, Year:%d", e.FirstName, e.LastName, st.Year())
+		res.Year = st.Year()
+		for _, l := range leaves {
+			// r.Days = append(r.Days, l.LeaveDate.Format("02-01"))
+			res.Days[l.LeaveDate.Format("02-01")] = 1
+		}
+		results = append(results, res)
+
+	}
+
+	// fmt.Println(leaves)
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(results)
 
 }

@@ -66,14 +66,14 @@ export default {
       }
 
       if (!( kw in  this.CalendarData.days )){
-        // console.log("keyword not in days", kw, this.CalendarData.days[kw]);
+        console.log("keyword not in days", kw, this.CalendarData.days[kw]);
         return "#a6a6a6";
         // return "white";
         // return this.colorRange(z);
       }
-      z =  (this.CalendarData.days[kw] - this.CalendarData.min)/ this.CalendarData.max;
+      // z =  (this.CalendarData.days[kw] - this.CalendarData.min)/ this.CalendarData.max;
       // console.log(kw,"get Colors z=", z);
-      return this.colorRange(z);
+      return "#311B92";
       // }
       // var x = Math.random();
       // console.log(daDate,x);

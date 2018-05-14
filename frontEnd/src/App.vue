@@ -45,9 +45,15 @@
           dense
           @input="OnChange"
           ></v-select>
-          <vheatmap v-if="yearcounts.year!=null"
-          :CalendarData="yearcounts"
-          > </vheatmap> 
+          <!-- <vheatmap v-if="yearcounts.year!=null" -->
+          <!-- :CalendarData="yearcounts" -->
+          <!-- > </vheatmap>  -->
+          <ul>
+            <li v-for="m in yearsLeave">
+              <!-- {{m.title}} -->
+              <vheatmap :CalendarData="m">        </vheatmap>
+            </li>
+          </ul>
 
         </v-flex>
       </v-layout>
@@ -71,6 +77,7 @@ export default {
     selected: null,
     loading: false,
     yearcounts : {days: {}, year: null, title:"Not Data Available"},
+    yearsLeave : [],
   }),
   watch: {
     search (val) {
@@ -80,11 +87,11 @@ export default {
   methods: {
     OnChange(){
       this.items = [];
-      axios.get("/api/list/"+ this.select)
+      axios.get("/api/list/"+ this.select + "/5")
       .then((response)  =>  {
         this.loading = false;
           console.log(response.data);
-          this.yearcounts = response.data;
+          this.yearsLeave = response.data;
           this.search = null;
         }, (error)  =>  {
           this.loading = false;

@@ -87,7 +87,7 @@ export default {
   methods: {
     OnChange(){
       this.items = [];
-      axios.get("/api/list/"+ this.select + "/5")
+      axios.get("/api/list/"+ this.select + "/10")
       .then((response)  =>  {
         this.loading = false;
           console.log(response.data);

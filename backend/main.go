@@ -141,7 +141,6 @@ func listEmployeeLeavesYears(w http.ResponseWriter, r *http.Request) {
 			Where("leave_date < ?", ft).
 			Order("leave_date").
 			Find(&leaves)
-		fmt.Println(len(leaves))
 		res.Title = fmt.Sprintf("Leaves for: %s %s, Year:%d", e.FirstName, e.LastName, st.Year())
 		res.Year = st.Year()
 		for _, l := range leaves {

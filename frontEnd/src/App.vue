@@ -1,5 +1,5 @@
 <template>
-  <v-app id="inspire" dark>
+  <v-app id="inspire">
     <v-navigation-drawer
     clipped
     fixed
@@ -46,23 +46,19 @@
           @input="OnChange"
           ></v-select>
           <!-- <vheatmap v-if="yearcounts.year!=null" -->
-          <!-- :CalendarData="yearcounts" -->
-          <!-- > </vheatmap>  -->
-          <ul>
-            <li v-for="m in yearsLeave">
-              <!-- {{m.title}} -->
-              <vheatmap :CalendarData="m">        </vheatmap>
-            </li>
-          </ul>
+            <!-- :CalendarData="yearcounts" -->
+            <!-- > </vheatmap>  -->
+            <!-- {{m.title}} -->
+            <vheatmap v-for="m in yearsLeave" :CalendarData="m">        </vheatmap>
 
-        </v-flex>
-      </v-layout>
-    </v-container>
-  </v-content>
-  <v-footer app fixed>
-    <span>&copy; 2017</span>
-  </v-footer>
-</v-app>
+          </v-flex>
+        </v-layout>
+      </v-container>
+    </v-content>
+    <v-footer app fixed>
+      <span>&copy; ATOP Workforce Analytics</span>
+    </v-footer>
+  </v-app>
 </template>
 
 <script>
@@ -90,13 +86,13 @@ export default {
       axios.get("/api/list/"+ this.select + "/10")
       .then((response)  =>  {
         this.loading = false;
-          console.log(response.data);
-          this.yearsLeave = response.data;
-          this.search = null;
-        }, (error)  =>  {
-          this.loading = false;
-          console.log(error);
-        });
+        console.log(response.data);
+        this.yearsLeave = response.data;
+        this.search = null;
+      }, (error)  =>  {
+        this.loading = false;
+        console.log(error);
+      });
 
       // console.log(this.select + "changed");
     },
@@ -106,19 +102,19 @@ export default {
         return;
       }
       this.loading = true;
-        axios.get("/api/search?query="+v)
-        .then((response)  =>  {
-          this.loading = false;
-          this.items = response.data;
-        }, (error)  =>  {
-          this.loading = false;
-          console.log(error);
-        })
+      axios.get("/api/search?query="+v)
+      .then((response)  =>  {
+        this.loading = false;
+        this.items = response.data;
+      }, (error)  =>  {
+        this.loading = false;
+        console.log(error);
+      })
 
-      }
-    },
-    components: {
-      'vheatmap': vheatmap
-    },
-  }
-  </script>
+    }
+  },
+  components: {
+    'vheatmap': vheatmap
+  },
+}
+</script>

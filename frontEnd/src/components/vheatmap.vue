@@ -4,7 +4,7 @@
     <div class="calender-map">
       <!-- <div> -->
         <svg viewBox="0 0 700 115" xmlns="http://www.w3.org/2000/svg" v-if="CalendarData.year">
-            <text transform="translate(350,10)" style="text-anchor: middle;  fill: white;">{{CalendarData.title}}</text>
+          <text transform="translate(350,10)" style="text-anchor: middle;  fill: white;">{{CalendarData.title}}</text>
           <g transform="translate(40,30)">
             <text transform="translate(-25,42)rotate(-90)" style="text-anchor: middle;  fill: white;">{{CalendarData.year}}</text>
 
@@ -14,7 +14,8 @@
               <text style="text-anchor: end;" dy="-.25em">{{monthNames[i-1]}}</text>
             </g>
             <rect  v-for="d in AllDays" 
-            class="day" 
+            stroke="#666"
+            text-anchor="end"
             :width="cSize" :height="cSize" 
             :x="getX(d)" :y="getY(d)" :fill="getColor(d)">
           </rect>
@@ -61,19 +62,19 @@ export default {
       var kw = moment(daDate).format("DD-MM");
       var z = 0.0;
       if ( this.CalendarData.days == undefined){
-        return "#a6a6a6";
+        return "#424242";
         // return "#737373";
       }
 
       if (!( kw in  this.CalendarData.days )){
         console.log("keyword not in days", kw, this.CalendarData.days[kw]);
-        return "#a6a6a6";
+        return "#424242";
         // return "white";
         // return this.colorRange(z);
       }
       // z =  (this.CalendarData.days[kw] - this.CalendarData.min)/ this.CalendarData.max;
       // console.log(kw,"get Colors z=", z);
-      return "#311B92";
+      return "#FB8C00";
       // }
       // var x = Math.random();
       // console.log(daDate,x);
@@ -132,32 +133,25 @@ export default {
   },
   beforeMount (){
       // this.calendarCounts = this.CalendarData;
-  },
-  props:['CalendarData']
-}
-</script>
+    },
+    props:['CalendarData']
+  }
+  </script>
 
-<style scoped>
-.calender-map {
-  font: 10px sans-serif;
-  shape-rendering: crispEdges;
-  width: 100%;
-  /*background-color: white;*/
-}
-.day {
-  stroke: #666;
-  text-anchor: end;
-}
-.month {
-  fill: white;
-}
-.border{
-  fill: none;
-  stroke: #000;
-  stroke-width: 2px;
-}
-.dow{
-  fill: white;
-  text-anchor: end;
-}
-</style>
+  <style scoped>
+  .calender-map {
+    font: 10px sans-serif;
+    shape-rendering: crispEdges;
+    width: 100%;
+    /*background-color: white;*/
+  }
+  .border{
+    fill: none;
+    stroke: #000;
+    stroke-width: 2px;
+  }
+  .dow{
+    fill: black;
+    text-anchor: end;
+  }
+  </style>

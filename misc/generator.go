@@ -24,6 +24,9 @@ func main() {
 	fmt.Fprintln(w, getTableHead2(TableName))
 	TableName = "employees"
 	fmt.Fprintln(w, getTableHead(TableName))
+	fmt.Fprintln(w, CreateLeavesGroups())
+	fmt.Fprintln(w, CreateLeavesCategories())
+	fmt.Fprintln(w, CreateLeavesTypes())
 	w.Flush()
 	f.Close()
 
@@ -126,4 +129,21 @@ func getTableHead(tn string) string {
 	branch_id integer,
 	manager_id integer 
 );`
+}
+
+func CreateLeavesGroups() string {
+	return "DROP TABLE IF EXISTS  lnames CASCADE;\n create table lnames(" +
+		`id SERIAL PRIMARY KEY,
+		name VARCHAR(50));`
+}
+func CreateLeavesCategories() string {
+	return "DROP TABLE IF EXISTS lcategories CASCADE;\n create table lcategories(" +
+		`id SERIAL PRIMARY KEY,
+		name VARCHAR(50));`
+}
+
+func CreateLeavesTypes() string {
+	return "DROP TABLE IF EXISTS ltypes CASCADE;\n create table ltypes(" +
+		`id SERIAL PRIMARY KEY,
+		name VARCHAR(50));`
 }

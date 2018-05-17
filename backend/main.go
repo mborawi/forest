@@ -129,7 +129,7 @@ func listEmployeeLeavesYears(w http.ResponseWriter, r *http.Request) {
 
 	for ; yrs >= 0; yrs-- {
 		st := time.Date(thisyear-yrs, 1, 1, 0, 0, 0, 0, time.UTC)
-		ft := st.AddDate(0, 12, 0).Add(-1 * time.Nanosecond)
+		ft := st.AddDate(0, 12, 0)
 		res = result{}
 		res.Days = make(map[string]uint)
 		// LeaveDates := []time.Time{}

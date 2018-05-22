@@ -49,7 +49,7 @@
             <!-- :CalendarData="yearcounts" -->
             <!-- > </vheatmap>  -->
             <!-- {{m.title}} -->
-            <vheatmap v-for="m in yearsLeave" :CalendarData="m">        </vheatmap>
+            <vheatmap v-for="m in yearsLeave" :key="m.id" v-bind:data="m" :CalendarData="m">        </vheatmap>
 
           </v-flex>
         </v-layout>

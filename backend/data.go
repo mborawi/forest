@@ -6,9 +6,10 @@ type day struct {
 }
 
 type result struct {
-	Year  int             `json:"year"`
-	Title string          `json:"title"`
-	Days  map[string]uint `json:"days"`
-	Max   uint            `json:"max"`
-	Min   uint            `json:"min"`
+	Year      int             `json:"year"`
+	Title     string          `json:"title"`
+	FileTitle string          `json:"file_title"`
+	Days      map[string]uint `json:"days"`
+	Max       uint            `json:"max"`
+	Min       uint            `json:"min"`
 }

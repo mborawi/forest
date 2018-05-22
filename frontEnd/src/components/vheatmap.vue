@@ -1,35 +1,36 @@
 <template>
   <v-container fluid>
     <!-- {{title}} -->
-    <div class="calender-map">
-      <!-- <div> -->
+    <v-layout row wrap>
+      <v-flex class="calender-map">
         <svg viewBox="0 0 700 115" xmlns="http://www.w3.org/2000/svg" v-if="CalendarData.year">
-          <text transform="translate(350,10)" style="text-anchor: middle;  fill: white;">{{CalendarData.title}}</text>
-          <g transform="translate(40,30)">
-            <text transform="translate(-25,42)rotate(-90)" style="text-anchor: middle;  fill: white;">{{CalendarData.year}}</text>
+          <text transform="translate(350,10)" font-size="10px"  font="sans-serif" width="100%" style="text-anchor: middle;  fill: black;">{{CalendarData.title}}</text>
+          <g transform="translate(40,30)" 
+          font-size="10px" font="sans-serif" shape-rendering="crispEdges" width="100%">
+          <text transform="translate(-25,42)rotate(-90)" style="text-anchor: middle;  fill: white;">{{CalendarData.year}}</text>
 
-            <text class="dow" v-for="d in 7" :transform="getDayTranslations(d)"  dy="-.25em">{{dayNames[d-1]}}</text>
+          <text class="dow" v-for="d in 7" :transform="getDayTranslations(d)"  dy="-.25em"     fill="black" text-anchor="end">{{dayNames[d-1]}}</text>
 
-            <g v-for="i in 12" class="month" :transform="getTranslation(i)" >
-              <text style="text-anchor: end;" dy="-.25em">{{monthNames[i-1]}}</text>
-            </g>
-            <rect  v-for="d in AllDays" 
-            stroke="#666"
-            text-anchor="end"
-            :width="cSize" :height="cSize" 
-            :x="getX(d)" :y="getY(d)" :fill="getColor(d)">
-          </rect>
+          <g v-for="i in 12" class="month" :transform="getTranslation(i)" >
+            <text style="text-anchor: end;" dy="-.25em">{{monthNames[i-1]}}</text>
+          </g>
+          <rect  v-for="d in AllDays" 
+          stroke="#666"
+          text-anchor="end"
+          :width="cSize" :height="cSize" 
+          :x="getX(d)" :y="getY(d)" :fill="getColor(d)">
+        </rect>
 
-          <path v-for="m in 12" class="border" :d="getPath(m)">{{}}</path>
-        </g>
-      </svg>
-      <!-- <ul>
-        <li v-for="k,v in CalendarData.days">
-          {{v}}: {{k}}/ {{CalendarData.max}}
-        </li>
-      </ul> -->
-    </div>
-  </v-container>
+        <path v-for="m in 12" :d="getPath(m)"
+        class="border" fill="none" stroke="#000" stroke-width="2px">{{}}</path>
+      </g>
+    </svg>
+  </v-flex>
+  <v-flex xs-1 offset-xs11 >
+    <v-btn color="success" right v-on:click="getSvg(CalendarData.file_title)">Export</v-btn>
+  </v-flex>  
+</v-layout>
+</v-container>
 </template>
 
 <script>
@@ -45,9 +46,22 @@ export default {
     firstSunday: null,
     dayNames:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
     monthNames : [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ],
-    calendarCounts : {days: {}, year: 0, title:"Not Data Available"},
+    // calendarCounts : {days: {}, year: 0, title:"Not Data Available", file_title:"none"},
   }),
   methods: {
+    getSvg: function(fileName){
+      // console.log(fileName);
+      var content = this.$el.firstChild.firstChild.innerHTML;
+      const blob = new Blob([content], {type: 'image/svg+xml'})
+      const e = document.createEvent('MouseEvents'),
+      a = document.createElement('a');
+      a.download = fileName + ".svg";
+      a.href = window.URL.createObjectURL(blob);
+      a.dataset.downloadurl = ['image/svg+xml', a.download, a.href].join(':');
+      e.initEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+      a.dispatchEvent(e);
+      console.log(this.$el.firstChild.firstChild.innerHTML);
+    },
     weekNo: function(daDate){
       return Math.ceil((((daDate - this.firstSunday) / 86400000) + 1)/7);
     },
@@ -67,7 +81,7 @@ export default {
       }
 
       if (!( kw in  this.CalendarData.days )){
-        console.log("keyword not in days", kw, this.CalendarData.days[kw]);
+        // console.log("keyword not in days", kw, this.CalendarData.days[kw]);
         return "#424242";
         // return "white";
         // return this.colorRange(z);
@@ -106,7 +120,7 @@ export default {
       var w1 = this.weekNo(t1);
       // d0 = +day(t0), w0 = +week(t0),
       // d1 = +day(t1), w1 = +week(t1);
-      console.log(m, d0,d1,w0,w1);
+      // console.log(m, d0,d1,w0,w1);
       return "M" + (w0 + 1) * this.cSize + "," + d0 * this.cSize
       + "H" + w0 * this.cSize + "V" + 7 * this.cSize
       + "H" + w1 * this.cSize + "V" + (d1 + 1) * this.cSize
@@ -124,26 +138,27 @@ export default {
     }
   },
   created: function () {
-    console.log("hello");
+    // console.log("hello");
     this.generateDates();
     this.colorRange = d3.scale.linear().range(["white", this.heatColor]).domain([0, 1]);
     var fd_dow = new Date(Date.UTC(this.CalendarData.year,0,1)).getDay();
     this.firstSunday = new Date(Date.UTC(this.CalendarData.year, 0, 1 - fd_dow));
-    console.log(fd_dow, this.firstSunday);
+    
+    // console.log(fd_dow, this.firstSunday);
   },
-  beforeMount (){
+  mounted (){
       // this.calendarCounts = this.CalendarData;
+      // this.getSvg();
     },
     props:['CalendarData']
   }
   </script>
 
   <style scoped>
-  .calender-map {
+/*  .calender-map {
     font: 10px sans-serif;
     shape-rendering: crispEdges;
     width: 100%;
-    /*background-color: white;*/
   }
   .border{
     fill: none;
@@ -153,5 +168,5 @@ export default {
   .dow{
     fill: black;
     text-anchor: end;
-  }
-  </style>
+    }*/
+    </style>

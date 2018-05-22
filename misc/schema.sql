@@ -16,8 +16,9 @@ DROP TABLE IF EXISTS leaves CASCADE;
 	id SERIAL PRIMARY KEY,
 	employee_id Integer,
 	leave_date timestamp,
-	leave_duration Integer, -- zero for whole day,minutes should be only used for less than day leaves (max=7.22hrsx60)
-	leave_id integer, 
+	leave_name_id integer, 
+	leave_type_id integer, 
+	leave_category_id integer, 
 	created_at timestamp DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX date_idx ON leaves (leave_date);
@@ -57,3 +58,39 @@ DROP TABLE IF EXISTS leave_types CASCADE;
 	name VARCHAR(50),
  	created_at timestamp DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE OR REPLACE FUNCTION GetLeaveNameId(input text) 
+RETURNS INTEGER AS $leave_name_id$
+DECLARE
+	leave_name_id INTEGER;
+BEGIN
+	SELECT id INTO leave_name_id 
+	FROM leave_names 
+	WHERE name ILIKE input;
+	RETURN leave_name_id;
+END;
+$leave_name_id$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION GetLeaveTypeId(input text) 
+RETURNS INTEGER AS $leave_type_id$
+DECLARE
+	leave_type_id INTEGER;
+BEGIN
+	SELECT id INTO leave_type_id 
+	FROM leave_types 
+	WHERE name ILIKE input;
+	RETURN leave_type_id;
+END;
+$leave_type_id$ LANGUAGE plpgsql VOLATILE;
+
+CREATE OR REPLACE FUNCTION GetLeaveCategoryId(input text) 
+RETURNS INTEGER AS $leave_category_id$
+DECLARE
+	leave_category_id INTEGER;
+BEGIN
+	SELECT id INTO leave_category_id 
+	FROM leave_categories 
+	WHERE name ILIKE input;
+	RETURN leave_category_id;
+END;
+$leave_category_id$ LANGUAGE plpgsql VOLATILE;

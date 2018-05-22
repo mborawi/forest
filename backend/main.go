@@ -17,9 +17,10 @@ import (
 var db *gorm.DB
 
 func main() {
-	con := fmt.Sprintf("user=%s dbname=%s port=%s",
-		"mido",
+	con := fmt.Sprintf("dbname=%s  user=%s password=%s port=%s",
 		"heat",
+		"mido",
+		"123",
 		"5432")
 	var err error
 	db, err = gorm.Open("postgres", con)

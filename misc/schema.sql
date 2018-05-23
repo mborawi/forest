@@ -4,6 +4,7 @@ DROP TABLE IF EXISTS leave_ranges CASCADE;
 	employee_id Integer,
 	start timestamp,
 	finish timestamp,
+	hours decimal,
 	name VARCHAR(50),
 	category VARCHAR(50),
 	type VARCHAR(50),

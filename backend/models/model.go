@@ -35,6 +35,7 @@ type LeaveRange struct {
 	CreatedAt  time.Time
 	Start      time.Time
 	Finish     time.Time
+	Hours      float64
 	EmployeeID uint
 	Name       string
 	Category   string

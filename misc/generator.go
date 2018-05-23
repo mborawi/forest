@@ -73,8 +73,8 @@ func createRanges(N, stYr, fnYr int) {
 				duration := time.Hour * 24 * time.Duration(rand.Intn(4)+1)
 				leaveEnds := leaveStarts.Add(duration)
 				rr := rand.Intn(len(cats))
-				fmt.Fprintf(w, "%d,%d,%s,%s,Planned,%s,PLWOP TCAS\n",
-					c, i+1, leaveStarts.Format("2006-01-02"), leaveEnds.Format("2006-01-02"), cats[rr])
+				fmt.Fprintf(w, "%d,%d,%s,%s,%.2f,Planned,%s,PLWOP TCAS\n",
+					c, i+1, leaveStarts.Format("2006-01-02"), leaveEnds.Format("2006-01-02"), rand.Float64()*7, cats[rr])
 				c++
 			}
 		}

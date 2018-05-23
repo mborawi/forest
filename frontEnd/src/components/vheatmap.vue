@@ -1,10 +1,9 @@
 <template>
   <v-container fluid>
-    <!-- {{title}} -->
     <v-layout row wrap>
       <v-flex class="calender-map">
         <svg viewBox="0 0 700 115" xmlns="http://www.w3.org/2000/svg" v-if="CalendarData.year">
-          <text transform="translate(350,10)" font-size="10px"  font="sans-serif" width="100%" style="text-anchor: middle;  fill: black;">{{CalendarData.title}}</text>
+          <text transform="translate(350,10)" font-size="10px"  font="sans-serif" width="100%" style="text-anchor: middle;" fill="black">{{CalendarData.title}}</text>
           <g transform="translate(40,30)" 
           font-size="10px" font="sans-serif" shape-rendering="crispEdges" width="100%">
           <text transform="translate(-25,42)rotate(-90)" style="text-anchor: middle;  fill: white;">{{CalendarData.year}}</text>
@@ -27,7 +26,7 @@
     </svg>
   </v-flex>
   <v-flex xs-1 offset-xs11 >
-    <v-btn color="success" right v-on:click="getSvg(CalendarData.file_title)">Export</v-btn>
+    <v-btn color="info" right v-on:click="getSvg(CalendarData.file_title)">Export</v-btn>
   </v-flex>  
 </v-layout>
 </v-container>
@@ -46,7 +45,6 @@ export default {
     firstSunday: null,
     dayNames:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
     monthNames : [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ],
-    // calendarCounts : {days: {}, year: 0, title:"Not Data Available", file_title:"none"},
   }),
   methods: {
     getSvg: function(fileName){
@@ -72,36 +70,21 @@ export default {
       return this.cSize * daDate.getDay();
     },
     getColor: function(daDate) {
-      // var kw = daDate.getUTCDate()+"-"+(daDate.getUTCMonth()+1);
       var kw = moment(daDate).format("DD-MM");
+      var colors = ['#BF360C','#FFFFFF','#FFD600','#00E676','#2E7D32','#9E9D24','#C6FF00','#00B0FF','#039BE5','#7C4DFF','#8C9EFF','#B39DDB','#FF4081','#AB47BC'];
       var z = 0.0;
       if ( this.CalendarData.days == undefined){
         return "#424242";
-        // return "#737373";
       }
 
       if (!( kw in  this.CalendarData.days )){
         // console.log("keyword not in days", kw, this.CalendarData.days[kw]);
         return "#424242";
-        // return "white";
-        // return this.colorRange(z);
       }
-      // z =  (this.CalendarData.days[kw] - this.CalendarData.min)/ this.CalendarData.max;
-      // console.log(kw,"get Colors z=", z);
-      return "#FB8C00";
-      // }
-      // var x = Math.random();
-      // console.log(daDate,x);
-      // return this.colorRange(x);
+      // console.log(this.CalendarData.days[kw].Category)
+      // return "#FB8C00";
+      return colors[this.CalendarData.days[kw].Category-1];
     },
-    // hexToRgb: function(hex) {
-    //   var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    //   return result ? {
-    //     r: parseInt(result[1], 16),
-    //     g: parseInt(result[2], 16),
-    //     b: parseInt(result[3], 16)
-    //   } : null;
-    // },
     getValue: function(d){
       return "hello";
     },
@@ -118,9 +101,6 @@ export default {
       var d1 = t1.getDay();
       var w0 = this.weekNo(t0);
       var w1 = this.weekNo(t1);
-      // d0 = +day(t0), w0 = +week(t0),
-      // d1 = +day(t1), w1 = +week(t1);
-      // console.log(m, d0,d1,w0,w1);
       return "M" + (w0 + 1) * this.cSize + "," + d0 * this.cSize
       + "H" + w0 * this.cSize + "V" + 7 * this.cSize
       + "H" + w1 * this.cSize + "V" + (d1 + 1) * this.cSize
@@ -144,29 +124,11 @@ export default {
     var fd_dow = new Date(Date.UTC(this.CalendarData.year,0,1)).getDay();
     this.firstSunday = new Date(Date.UTC(this.CalendarData.year, 0, 1 - fd_dow));
     
-    // console.log(fd_dow, this.firstSunday);
   },
   mounted (){
-      // this.calendarCounts = this.CalendarData;
-      // this.getSvg();
     },
     props:['CalendarData']
   }
   </script>
 
-  <style scoped>
-/*  .calender-map {
-    font: 10px sans-serif;
-    shape-rendering: crispEdges;
-    width: 100%;
-  }
-  .border{
-    fill: none;
-    stroke: #000;
-    stroke-width: 2px;
-  }
-  .dow{
-    fill: black;
-    text-anchor: end;
-    }*/
-    </style>
+

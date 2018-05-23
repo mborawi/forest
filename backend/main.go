@@ -29,7 +29,6 @@ func main() {
 	}
 	defer db.Close()
 	router := mux.NewRouter().StrictSlash(false)
-	router.HandleFunc("/api/list/{id:[0-9]+}", listEmployeeLeaves)
 	router.HandleFunc("/api/list/{id:[0-9]+}/{yr:[0-9]+}", listEmployeeLeavesYears)
 	router.HandleFunc("/api/search", SearchHandler)
 	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("../frontend/static/"))))
@@ -69,51 +68,6 @@ func SearchHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(suggestions)
 }
 
-func listEmployeeLeaves(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id, _ := strconv.Atoi(vars["id"])
-	// year := time.Now().Year() - 1
-	year := 2011
-
-	thisyear := time.Date(year, 12, 31, 0, 0, 0, 0, time.UTC)
-	past := thisyear.AddDate(-10, 0, 0)
-	leaves := []models.Leave{}
-	db.Debug().
-		Where("employee_id = ?", id).
-		Where("leave_date >= ?", past).
-		Where("leave_date < ?", thisyear).
-		Order("leave_date").
-		Find(&leaves)
-
-	occurneces := make(map[string]uint)
-	max := uint(0)
-	min := uint(1000)
-	for _, l := range leaves {
-		thisDate := l.LeaveDate.Format("02-01")
-		c := occurneces[thisDate]
-		c += 1
-		occurneces[thisDate] = c
-		if max < c {
-			max = c
-		}
-		if c < min {
-			min = c
-		}
-
-	}
-	res := result{
-		Year:  year,
-		Title: "Leaves in the last 10 years",
-		Days:  occurneces,
-		Max:   max,
-		Min:   min,
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(res)
-
-}
-
 func listEmployeeLeavesYears(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.Atoi(vars["id"])
@@ -123,31 +77,27 @@ func listEmployeeLeavesYears(w http.ResponseWriter, r *http.Request) {
 	results := []result{}
 	var res result
 	var leaves []models.Leave
-	e := models.Employee{}
-	db.
-		// Debug().
-		Find(&e, id)
+	emp := models.Employee{}
+	db.Find(&emp, id)
 
 	for ; yrs >= 0; yrs-- {
 		st := time.Date(thisyear-yrs, 1, 1, 0, 0, 0, 0, time.UTC)
-		ft := st.AddDate(0, 12, 0)
+		ft := time.Date(thisyear-yrs, 12, 31, 0, 0, 0, 0, time.UTC)
 		res = result{}
-		res.Days = make(map[string]uint)
-		// LeaveDates := []time.Time{}
+		res.Days = make(map[string]LeaveDay)
 		leaves = []models.Leave{}
 		db.
 			// Debug().
 			Where("employee_id = ?", id).
 			Where("leave_date >= ?", st).
-			Where("leave_date < ?", ft).
+			Where("leave_date <= ?", ft).
 			Order("leave_date").
 			Find(&leaves)
-		res.Title = fmt.Sprintf("Leaves for: %s %s, Year:%d", e.FirstName, e.LastName, st.Year())
-		res.FileTitle = fmt.Sprintf("leaves_%s_%s_%d", e.FirstName, e.LastName, st.Year())
+		res.Title = fmt.Sprintf("Leaves for: %s %s, Year:%d", emp.FirstName, emp.LastName, st.Year())
+		res.FileTitle = fmt.Sprintf("leaves_%s_%s_%d", emp.FirstName, emp.LastName, st.Year())
 		res.Year = st.Year()
 		for _, l := range leaves {
-			// r.Days = append(r.Days, l.LeaveDate.Format("02-01"))
-			res.Days[l.LeaveDate.Format("02-01")] = 1
+			res.Days[l.LeaveDate.Format("02-01")] = LeaveDay{Count: -1, Category: l.LeaveCategoryID}
 		}
 		results = append(results, res)
 

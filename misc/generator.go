@@ -40,6 +40,21 @@ func createFakeEmployees(N int) {
 }
 
 func createRanges(N, stYr, fnYr int) {
+	cats := []string{"Carers",
+		"Annual",
+		"Long Service",
+		"Sick/Personal",
+		"Leave without pay",
+		"Wellbeing",
+		"Purchased",
+		"Maternity",
+		"Witness",
+		"Miscellaneous",
+		"Not Assigned",
+		"Workers Compensation",
+		"Study",
+		"Bereavement",
+	}
 	f, err := os.Create("LeaveRanges.csv")
 	if err != nil {
 		fmt.Println(err)
@@ -57,8 +72,9 @@ func createRanges(N, stYr, fnYr int) {
 				leaveStarts := time.Date(y, time.Month(m), d, 0, 0, 0, 0, time.UTC)
 				duration := time.Hour * 24 * time.Duration(rand.Intn(4)+1)
 				leaveEnds := leaveStarts.Add(duration)
-				fmt.Fprintf(w, "%d,%d,%s,%s,Planned,Leave without pay,PLWOP TCAS\n",
-					c, i+1, leaveStarts.Format("2006-01-02"), leaveEnds.Format("2006-01-02"))
+				rr := rand.Intn(len(cats))
+				fmt.Fprintf(w, "%d,%d,%s,%s,Planned,%s,PLWOP TCAS\n",
+					c, i+1, leaveStarts.Format("2006-01-02"), leaveEnds.Format("2006-01-02"), cats[rr])
 				c++
 			}
 		}

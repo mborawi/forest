@@ -12,9 +12,18 @@ type result struct {
 	Days      map[string]LeaveDay `json:"days"`
 	Max       uint                `json:"max"`
 	Min       uint                `json:"min"`
+	PlCounts  []LeaveDay          `json:"pcounts"`
+	UplCounts []LeaveDay          `json:"ucounts"`
+	Total     int                 `json:"total"`
 }
 
 type LeaveDay struct {
-	Count    int
-	Category uint
+	Count     int    `json:"count"`
+	CatId     uint   `json:"cat_id"`
+	CatName   string `json:"cat"`
+	LeaveName string `json:"name"`
+}
+
+type YrLeaves struct {
+	TotalCount uint
 }

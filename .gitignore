@@ -1,2 +1,3 @@
 backend/backend
 misc/*.csv
+config.toml

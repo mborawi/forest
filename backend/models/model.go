@@ -9,11 +9,13 @@ type Employee struct {
 	CreatedAt time.Time
 	FirstName string
 	LastName  string
+	FullName  string
 	Email     string
 	Phone     string
 	JobTitle  string
 	ManagerID uint
 	BranchID  uint
+	StartDate time.Time
 	Leaves    []Leave
 }
 

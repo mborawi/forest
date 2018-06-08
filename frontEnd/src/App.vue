@@ -6,37 +6,37 @@
     v-model="drawer"
     app
     >
-    <v-list dense>
-      <v-list-tile @click="">
-        <v-list-tile-action>
-          <v-icon>dashboard</v-icon>
-        </v-list-tile-action>
+    <v-list two-line class="grey darken-2">
+      <v-subheader class="grey darken-3 white--text">Direct Reports</v-subheader>
+      <template v-for="(emp,index) in emps">
+        
+      <v-list-tile avatar ripple class="grey darken-1" >
         <v-list-tile-content>
-          <v-list-tile-title>Dashboard</v-list-tile-title>
+          <v-list-tile-title class="indigo--text text--darken-4" v-html="emp.FullName"></v-list-tile-title>
+          <v-list-tile-sub-title class="yellow--text" v-html="emp.JobTitle"></v-list-tile-sub-title>
+          <v-list-tile-sub-title class="white--text" v-html="emp.Email"></v-list-tile-sub-title>
         </v-list-tile-content>
       </v-list-tile>
-      <v-list-tile @click="">
-        <v-list-tile-action>
-          <v-icon>settings</v-icon>
-        </v-list-tile-action>
-        <v-list-tile-content>
-          <v-list-tile-title>Settings</v-list-tile-title>
-        </v-list-tile-content>
-      </v-list-tile>
+      <v-divider v-if="index + 1 < emps.length"></v-divider>
+      </template>
     </v-list>
   </v-navigation-drawer>
   <v-toolbar app fixed clipped-left>
     <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
-    <v-toolbar-title>Application</v-toolbar-title>
+    <img src="/static/imgs/4lc.svg" style="width:2%;">
+    <v-toolbar-title>Forest</v-toolbar-title>
   </v-toolbar>
   <v-content>
     <v-container fluid>
       <v-layout justify-center align-center>
         <v-flex xs12>
+          <!-- dont-fill-mask-blanks -->
+          <!-- label="Search Employees" -->
           <v-select
+          :filter="customFilter"
           placeholder="First or Family name"
           autocomplete
-          :loading="loading"
+          :async-loading="loading"
           :items="items"
           solo
           :search-input.sync="search"
@@ -44,6 +44,7 @@
           color="light-green accent-3"
           dense
           @input="OnChange"
+          :rules="[() => select.length > 0 || 'You must choose at least one']"
           ></v-select>
           <!-- <vheatmap v-if="yearcounts.year!=null" -->
             <!-- :CalendarData="yearcounts" -->
@@ -66,14 +67,17 @@ import axios from 'axios';
 import vheatmap from './components/vheatmap.vue';
 export default {
   data: () => ({
-    drawer: true,
+    drawer: false,
     search: null,
     items: [],
     select: [],
-    selected: null,
     loading: false,
     yearcounts : {days: {}, year: null, title:"Not Data Available"},
     yearsLeave : [],
+    emps : [],
+    customFilter (item, queryText, itemText) {
+      return true;
+    }
   }),
   watch: {
     search (val) {
@@ -82,32 +86,40 @@ export default {
   },
   methods: {
     OnChange(){
-      this.items = [];
+      // this.items =[];
+      this.loading = true;
+      this.search = "";
+      this.yearsLeave = [];
       axios.get("/api/list/"+ this.select + "/10")
       .then((response)  =>  {
         this.loading = false;
-        console.log(response.data);
         this.yearsLeave = response.data;
-        this.search = null;
       }, (error)  =>  {
-        this.loading = false;
         console.log(error);
       });
-
-      // console.log(this.select + "changed");
+      axios.get("/api/emp/"+ this.select)
+      .then((response)  =>  {
+        this.search = "";
+        this.emps = response.data;
+        if (this.emps.length == 0){
+          this.drawer = false;
+        }else{
+          this.drawer = true;
+        }
+        console.log(this.emps);
+      }, (error)  =>  {
+        console.log(error);
+      });
     },
     querySelections (v) {
       if (!v || v.length < 3 ){
         this.items = [];
         return;
       }
-      this.loading = true;
       axios.get("/api/search?query="+v)
       .then((response)  =>  {
-        this.loading = false;
         this.items = response.data;
       }, (error)  =>  {
-        this.loading = false;
         console.log(error);
       })
 

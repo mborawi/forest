@@ -1,51 +1,48 @@
 <template>
   <v-container fluid>
-    <transition name="slide-x-reverse-transition" >
-      <v-layout row v-if="!tableView">
-        <v-flex class="calender-map">
-          <svg viewBox="0 0 700 115" xmlns="http://www.w3.org/2000/svg" v-if="CalendarData.year">
-            <text transform="translate(350,10)" font-size="10px"  font="sans-serif" width="100%" style="text-anchor: middle;" fill="black">{{CalendarData.title}}</text>
-            <g transform="translate(40,30)" 
-            font-size="10px" font="sans-serif" shape-rendering="crispEdges" width="100%">
-            <text transform="translate(-25,42)rotate(-90)" style="text-anchor: middle;  fill: white;">{{CalendarData.year}}</text>
+    <v-layout row v-if="!tableView">
+      <v-flex class="calender-map">
+        <svg viewBox="0 0 700 135" xmlns="http://www.w3.org/2000/svg" v-if="CalendarData.year">
+          <text transform="translate(350,10)" font-size="10px"  font="sans-serif" width="100%" style="text-anchor: middle;" fill="black">{{CalendarData.title}}</text>
+          <g transform="translate(40,30)" 
+          font-size="10px" font="sans-serif" shape-rendering="crispEdges" width="100%">
+          <text transform="translate(-25,42)rotate(-90)" style="text-anchor: middle;  fill: white;">{{CalendarData.year}}</text>
 
-            <text class="dow" v-for="d in 7" :transform="getDayTranslations(d)"  dy="-.25em"     fill="black" text-anchor="end">{{dayNames[d-1]}}</text>
+          <text class="dow" v-for="d in 7" :transform="getDayTranslations(d)"  dy="-.25em"     fill="black" text-anchor="end">{{dayNames[d-1]}}</text>
 
-            <g v-for="i in 12" class="month" :transform="getTranslation(i)" >
-              <text style="text-anchor: end;" dy="-.25em">{{monthNames[i-1]}}</text>
-            </g>
-            <rect  v-for="d in AllDays" 
-            stroke="#666"
-            text-anchor="end"
-            :width="cSize" :height="cSize" 
-            :x="getX(d)" :y="getY(d)" :fill="getColor(d)">
-          </rect>
+          <g v-for="i in 12" class="month" :transform="getTranslation(i)" >
+            <text style="text-anchor: end;" dy="-.25em">{{monthNames[i-1]}}</text>
+          </g>
+          <rect  v-for="d in AllDays" 
+          stroke="#666"
+          text-anchor="end"
+          :width="cSize" :height="cSize" 
+          :x="getX(d)" :y="getY(d)" :fill="getColor(d)">
+        </rect>
 
-          <path v-for="m in 12" :d="getPath(m)"
-          class="border" fill="none" stroke="#000" stroke-width="2px">{{}}</path>
+        <path v-for="m in 12" :d="getPath(m)"
+        class="border" fill="none" stroke="#000" stroke-width="2px"></path>
+        <g v-for="(pl, ind) in CalendarData.pcounts">
+        <rect stroke="#666" :width="cSize" :height="cSize" 
+          :x="getLegendx(ind)+'em'" y="9em" :fill="colors[pl.cat_id-1]"> </rect>
+          <text :x="getLegendx(ind)+2+'em'" dy="10em" font-size="10px" fill="black">{{pl.cat}}</text>
         </g>
-      </svg>
-    </v-flex>
-  </v-layout>
-</transition>
-<transition name="slide-x-transition" >
-  <v-layout align-top justify-center v-if="tableView" class="tr pop-up-message">
-    <v-data-table
-    :headers="headers"
-    :items="CalendarData.pcounts"
-    hide-actions
-    class="elevation-1"
-    >
-    <template slot="items" slot-scope="props">
-      <td class="text-xs-right">{{ props.item.name }}</td>
-      <td class="text-xs-right">{{ props.item.cat }}</td>
-      <td class="text-xs-right">{{ props.item.count }}</td>
-      <td class="text-xs-right">{{ props.item.count / CalendarData.total | percent }}</td>
-    </template>
-  </v-data-table>
+        <g v-for="(ul, ind) in CalendarData.ucounts">
+        <rect  stroke="#666"  :width="cSize" :height="cSize" 
+          :x="getLegendx(ind,false)+'em'" y="9em" :fill="colors[ul.cat_id-1]"> </rect> 
+          <text :x="getLegendx(ind,false)+ 2 +'em'" dy="10em" fill="black">{{ul.cat}}</text>
+        </g>
+      </g>
+    </svg>
+  </v-flex>
+  <v-flex>
+    
+  </v-flex>
+</v-layout>
+<v-layout align-top justify-center v-if="tableView" class="tr pop-up-message">
   <v-data-table
   :headers="headers"
-  :items="CalendarData.ucounts"
+  :items="CalendarData.pcounts"
   hide-actions
   class="elevation-1"
   >
@@ -56,9 +53,26 @@
     <td class="text-xs-right">{{ props.item.count / CalendarData.total | percent }}</td>
   </template>
 </v-data-table>
+<v-data-table
+:headers="headers"
+:items="CalendarData.ucounts"
+hide-actions
+class="elevation-1"
+>
+<template slot="items" slot-scope="props">
+  <td class="text-xs-right">{{ props.item.name }}</td>
+  <td class="text-xs-right">{{ props.item.cat }}</td>
+  <td class="text-xs-right">{{ props.item.count }}</td>
+  <td class="text-xs-right">{{ props.item.count / CalendarData.total | percent }}</td>
+</template>
+</v-data-table>
 </v-layout>
-</transition>
 <v-layout align-end justify-end>
+<!--   <v-flex >
+    <div v-for="c in colors" style="height:1.4em;  width: 1.4em; border-color: #00E676; margin:2px; background:coral;" v-bind:style="{background:c}">
+      {{c}}
+    </div>
+  </v-flex>  -->
   <v-btn color="red" outline v-on:click="flipView()">Stats</v-btn>
   <v-btn color="info"   v-on:click="getSvg(CalendarData.file_title)">Export</v-btn>
 </v-layout>
@@ -72,6 +86,7 @@ import numeral from "numeral";
 
 export default {
   data: () => ({
+    legend: {},
     test: "hello",
     AllDays: [],
     cSize :12,
@@ -87,10 +102,35 @@ export default {
     { text: 'Count', value: 'count' },
     { text: 'Percentage', value: '' },
     ],
+    colors : ['#BF360C','#FFFFFF','#FFD600','#00E676','#2E7D32','#9E9D24','#C6FF00','#00B0FF','#039BE5','#7C4DFF','#8C9EFF','#B39DDB','#FF4081','#AB47BC']
+
   }),
   methods: {
     flipView: function(){
       this.tableView = !this.tableView;
+    },
+    getLegendx: function(index,planned=true){
+      // var sum = 0;
+      // var target = this.CalendarData.pcounts;
+      // var i;
+      // if (!planned){
+      //   for(i=0; i < target.length; i++){
+      //     sum +=  (2 + target[i].cat.length);
+      //   }  
+      //   target = this.CalendarData.ucounts;
+      // }
+
+      // for(i=0; i < index; i++){
+      //   sum +=  (2 + target[i].cat.length);
+      // }
+      var spacer = 11;
+      if (planned)
+        return index * spacer;
+      else
+        return (this.CalendarData.pcounts.length  + index) *spacer;
+      // var space = sum/1.2;
+      // console.log("====>",index,this.CalendarData.pcounts[i].cat, sum, space);
+      // return space;
     },
     getSvg: function(fileName){
       var content = this.$el.firstChild.firstChild.innerHTML;
@@ -114,7 +154,6 @@ export default {
     },
     getColor: function(daDate) {
       var kw = moment(daDate).format("DD-MM");
-      var colors = ['#BF360C','#FFFFFF','#FFD600','#00E676','#2E7D32','#9E9D24','#C6FF00','#00B0FF','#039BE5','#7C4DFF','#8C9EFF','#B39DDB','#FF4081','#AB47BC'];
       var z = 0.0;
       if ( this.CalendarData.days == undefined){
         return "#424242";
@@ -123,7 +162,7 @@ export default {
       if (!( kw in  this.CalendarData.days )){
         return "#424242";
       }
-      return colors[this.CalendarData.days[kw].cat_id-1];
+      return this.colors[this.CalendarData.days[kw].cat_id-1];
     },
     getValue: function(d){
       return "hello";
@@ -173,5 +212,4 @@ export default {
   }
 }
 </script>
-
 

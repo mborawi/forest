@@ -11,17 +11,22 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	_ "github.com/lib/pq"
+	"github.com/mborawi/heat/backend/config"
 	"github.com/mborawi/heat/backend/models"
 )
 
 var db *gorm.DB
+var conf config.Config
 
 func main() {
-	con := fmt.Sprintf("dbname=%s  user=%s password=%s port=%s",
-		"heat",
-		"mido",
-		"123",
-		"5432")
+	config.ReadConfig(&conf)
+
+	con := fmt.Sprintf("user=%s password=%s dbname=%s port=%s  sslmode=disable",
+		conf.Database.Username,
+		conf.Database.Password,
+		conf.Database.DbName,
+		conf.Database.Port)
+
 	var err error
 	db, err = gorm.Open("postgres", con)
 	if err != nil {
@@ -30,12 +35,13 @@ func main() {
 	defer db.Close()
 	router := mux.NewRouter().StrictSlash(false)
 	router.HandleFunc("/api/list/{id:[0-9]+}/{yr:[0-9]+}", listEmployeeLeavesYears)
+	router.HandleFunc("/api/emp/{id:[0-9]+}", listEmployeeDetails)
 	router.HandleFunc("/api/search", SearchHandler)
 	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("../frontEnd/dist/static/"))))
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { http.ServeFile(w, r, "../frontEnd/dist/index.html") })
 	// router.NotFoundHandler = http.HandlerFunc(notFound)
-	log.Println("Launching Server Now on 8088...")
-	log.Fatal(http.ListenAndServe(":8088", router))
+	log.Printf("Launching Server Now on %s...", conf.Server.Port)
+	log.Fatal(http.ListenAndServe(conf.Server.Port, router))
 }
 
 func notFound(w http.ResponseWriter, r *http.Request) {
@@ -47,25 +53,43 @@ func SearchHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Query was not found", http.StatusNotAcceptable)
 		return
 	}
-	query := fmt.Sprintf("%%%s%%", q)
-	emps := []models.Employee{}
-	db.
-		Where("first_name ILIKE ?", query).
-		Or("last_name ILIKE ?", query).
-		Limit(20).
-		Find(&emps)
+	// db.
+	// 	Where("first_name ILIKE ?", query).
+	// 	Or("last_name ILIKE ?", query).
+	// 	Limit(20).
+	// 	Find(&emps)
 	type suggestion struct {
 		Text  string `json:"text"`
-		Value uint   `json:"value"`
+		Value int    `json:"value"`
 	}
 	suggestions := []suggestion{}
-	for _, e := range emps {
-		n := fmt.Sprintf("%s %s", e.FirstName, e.LastName)
-		suggestions = append(suggestions, suggestion{Value: e.ID, Text: n})
+	rs, err := db.
+		// Debug().
+		Raw("SELECT id, full_name FROM employees ORDER BY similarity(full_name, ?) DESC LIMIT ?", q, 20).
+		Rows()
+	if err != nil {
+		log.Fatalln(err)
+		http.Error(w, "Query failed", http.StatusNotAcceptable)
+		return
+	}
+	var n string
+	var id int
+	for rs.Next() {
+		rs.Scan(&id, &n)
+		suggestions = append(suggestions, suggestion{Text: n, Value: id})
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(suggestions)
+}
+
+func listEmployeeDetails(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, _ := strconv.Atoi(vars["id"])
+	emps := []models.Employee{}
+	db.Debug().Where("manager_id = ?", id).Find(&emps)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(emps)
 }
 
 func listEmployeeLeavesYears(w http.ResponseWriter, r *http.Request) {
@@ -79,6 +103,10 @@ func listEmployeeLeavesYears(w http.ResponseWriter, r *http.Request) {
 	var leaves []models.Leave
 	emp := models.Employee{}
 	db.Find(&emp, id)
+	fmt.Println(yrs, emp.StartDate.Year())
+	if emp.StartDate.Year() > thisyear-yrs {
+		yrs = thisyear - emp.StartDate.Year()
+	}
 
 	for yy := 0; yy <= yrs; yy++ {
 		st := time.Date(thisyear-yy, 1, 1, 0, 0, 0, 0, time.UTC)
@@ -114,7 +142,6 @@ func listEmployeeLeavesYears(w http.ResponseWriter, r *http.Request) {
 			Order("leave_date").
 			Find(&leaves)
 		res.Total = len(leaves)
-
 		res.Title = fmt.Sprintf("Leaves for: %s %s, Year: %d", emp.FirstName, emp.LastName, st.Year())
 		res.FileTitle = fmt.Sprintf("Leaves_%s_%s_%d", emp.FirstName, emp.LastName, st.Year())
 		res.Year = st.Year()

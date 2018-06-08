@@ -23,6 +23,9 @@ func createFakeEmployees(N int) {
 		lname := fake.LastName()
 		email := fmt.Sprintf("%s.%s@fakemail.com", fname, lname)
 		phone := fake.Phone()
+		mm := time.Month(rand.Intn(12) + 1)
+		sd := time.Date(time.Now().Year()-rand.Intn(20)-1,
+			mm, rand.Intn(28)+1, 0, 0, 0, 0, time.UTC)
 		jobTitle := fake.JobTitle()
 		branchId := rand.Intn(10) + 1
 		managerID := rand.Intn(i) + 1
@@ -32,8 +35,8 @@ func createFakeEmployees(N int) {
 		if i != i && managerID == 0 {
 			managerID = 1
 		}
-		fmt.Fprintf(w, "%d,%s,%s,%s,%s,%s,%d,%d\n",
-			i, fname, lname, email, phone, jobTitle, branchId, managerID)
+		fmt.Fprintf(w, "%d,%s,%s,%s,%s,%s,%d,%d,%s\n",
+			i, fname, lname, email, phone, jobTitle, branchId, managerID, sd.Format("2006-01-02 15:04:05"))
 	}
 	w.Flush()
 	f.Close()

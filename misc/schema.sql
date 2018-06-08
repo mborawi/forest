@@ -31,11 +31,13 @@ DROP TABLE IF EXISTS employees CASCADE;
 	id SERIAL PRIMARY KEY,
 	first_name VARCHAR(50),
 	last_name VARCHAR(50),
+	full_name VARCHAR(100),
 	email VARCHAR(80),
 	phone VARCHAR(25),
 	job_title VARCHAR(100),
 	branch_id integer,
 	manager_id integer,
+	start_date timestamp,
 	created_at timestamp DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -95,3 +97,5 @@ BEGIN
 	RETURN leave_category_id;
 END;
 $leave_category_id$ LANGUAGE plpgsql VOLATILE;
+
+

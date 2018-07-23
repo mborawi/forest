@@ -11,8 +11,8 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	_ "github.com/lib/pq"
-	"github.com/mborawi/heat/backend/config"
-	"github.com/mborawi/heat/backend/models"
+	"github.com/mborawi/forest/backend/config"
+	"github.com/mborawi/forest/backend/models"
 )
 
 var db *gorm.DB

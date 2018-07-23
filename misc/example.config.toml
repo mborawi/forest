@@ -1,0 +1,8 @@
+[Database]
+Username="yourUser"
+DbName="yourDbName"
+Password="yourPassword"
+Port="5432"
+
+[Server]
+Port=":8088"

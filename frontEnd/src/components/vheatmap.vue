@@ -123,7 +123,7 @@ export default {
       // for(i=0; i < index; i++){
       //   sum +=  (2 + target[i].cat.length);
       // }
-      var spacer = 11;
+      var spacer = 14;
       if (planned)
         return index * spacer;
       else

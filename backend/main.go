@@ -39,13 +39,14 @@ func main() {
 	router.HandleFunc("/api/search", SearchHandler)
 	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("../frontEnd/dist/static/"))))
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { http.ServeFile(w, r, "../frontEnd/dist/index.html") })
-	// router.NotFoundHandler = http.HandlerFunc(notFound)
+	router.NotFoundHandler = http.HandlerFunc(notFound)
 	log.Printf("Launching Server Now on %s...", conf.Server.Port)
 	log.Fatal(http.ListenAndServe(conf.Server.Port, router))
 }
 
 func notFound(w http.ResponseWriter, r *http.Request) {
 	log.Println(r.URL)
+	log.Println("Flux Reactor not ready doc!...")
 }
 func SearchHandler(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query().Get("query")

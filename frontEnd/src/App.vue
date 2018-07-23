@@ -23,7 +23,7 @@
   </v-navigation-drawer>
   <v-toolbar app fixed clipped-left>
     <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
-    <img src="/static/imgs/4lc.svg" style="width:2%;">
+    <img src="static/imgs/4lc.svg" style="width:2%;">
     <v-toolbar-title>Forest</v-toolbar-title>
   </v-toolbar>
   <v-content>
@@ -90,14 +90,14 @@ export default {
       this.loading = true;
       this.search = "";
       this.yearsLeave = [];
-      axios.get("/api/list/"+ this.select + "/10")
+      axios.get("api/list/"+ this.select + "/10")
       .then((response)  =>  {
         this.loading = false;
         this.yearsLeave = response.data;
       }, (error)  =>  {
         console.log(error);
       });
-      axios.get("/api/emp/"+ this.select)
+      axios.get("api/emp/"+ this.select)
       .then((response)  =>  {
         this.search = "";
         this.emps = response.data;
@@ -116,7 +116,7 @@ export default {
         this.items = [];
         return;
       }
-      axios.get("/api/search?query="+v)
+      axios.get("api/search?query="+v)
       .then((response)  =>  {
         this.items = response.data;
       }, (error)  =>  {

@@ -22,15 +22,17 @@
 
         <path v-for="m in 12" :d="getPath(m)"
         class="border" fill="none" stroke="#000" stroke-width="2px"></path>
+        <text x="1.6em" dy="13.3em" fill="black" font-size="7px" font-weight="bold">Planned:</text>
+        <text x="1.6em" dy="14.8em" fill="black" font-size="7px" font-weight="bold">Unplanned</text>
         <g v-for="(pl, ind) in CalendarData.pcounts">
-        <rect stroke="#666" :width="cSize" :height="cSize" 
-          :x="getLegendx(ind)+'em'" y="9em" :fill="colors[pl.cat_id-1]"> </rect>
-          <text :x="getLegendx(ind)+2+'em'" dy="10em" font-size="10px" fill="black">{{pl.cat}}</text>
+        <rect stroke="#666" :width="cSize/2" :height="cSize/2" 
+          :x="getLegendx(ind)+'em'" y="8.7em" :fill="colors[pl.cat_id-1]"> </rect>
+          <text :x="getLegendText(ind)+'em'" dy="13.3em" font-size="7px" fill="black">{{pl.cat}}</text>
         </g>
         <g v-for="(ul, ind) in CalendarData.ucounts">
-        <rect  stroke="#666"  :width="cSize" :height="cSize" 
-          :x="getLegendx(ind,false)+'em'" y="9em" :fill="colors[ul.cat_id-1]"> </rect> 
-          <text :x="getLegendx(ind,false)+ 2 +'em'" dy="10em" fill="black">{{ul.cat}}</text>
+        <rect  stroke="#666"  :width="cSize/2" :height="cSize/2" 
+          :x="getLegendx(ind)+'em'" y="9.8em" :fill="colors[ul.cat_id-1]"> </rect> 
+          <text :x="getLegendText(ind)+'em'" dy="14.8em" fill="black" font-size="7px">{{ul.cat}}</text>
         </g>
       </g>
     </svg>
@@ -110,27 +112,10 @@ export default {
       this.tableView = !this.tableView;
     },
     getLegendx: function(index,planned=true){
-      // var sum = 0;
-      // var target = this.CalendarData.pcounts;
-      // var i;
-      // if (!planned){
-      //   for(i=0; i < target.length; i++){
-      //     sum +=  (2 + target[i].cat.length);
-      //   }  
-      //   target = this.CalendarData.ucounts;
-      // }
-
-      // for(i=0; i < index; i++){
-      //   sum +=  (2 + target[i].cat.length);
-      // }
-      var spacer = 14;
-      if (planned)
-        return index * spacer;
-      else
-        return (this.CalendarData.pcounts.length  + index) *spacer;
-      // var space = sum/1.2;
-      // console.log("====>",index,this.CalendarData.pcounts[i].cat, sum, space);
-      // return space;
+      return 10*(index)+5;
+    },
+    getLegendText: function(index,planned=true){
+      return 10*(index)+ index * 4.3 + 8.4;
     },
     getSvg: function(fileName){
       var content = this.$el.firstChild.firstChild.innerHTML;

@@ -10,7 +10,7 @@
       <v-subheader class="grey darken-3 white--text">Direct Reports</v-subheader>
       <template v-for="(emp,index) in emps">
         
-      <v-list-tile avatar ripple class="grey darken-1" >
+      <v-list-tile avatar ripple class="grey darken-1" @click="GetEmployee(emp.ID)" >
         <v-list-tile-content>
           <v-list-tile-title class="indigo--text text--darken-4" v-html="emp.FullName"></v-list-tile-title>
           <v-list-tile-sub-title class="yellow--text" v-html="emp.JobTitle"></v-list-tile-sub-title>
@@ -85,31 +85,47 @@ export default {
     }
   },
   methods: {
-    OnChange(){
-      // this.items =[];
+    getReports(id){
+      this.emps = [];
+      axios.get("api/emp/"+ id)
+        .then((response)  =>  {
+            this.search = "";
+            this.emps = response.data;
+            if (this.emps.length == 0){
+              this.drawer = false;
+            }else{
+              this.drawer = true;
+            }
+            console.log(this.emps);
+          }, (error)  =>  {
+            console.log(error);
+          });
+    },
+    getLeaves(id){
       this.loading = true;
-      this.search = "";
       this.yearsLeave = [];
-      axios.get("api/list/"+ this.select + "/10")
-      .then((response)  =>  {
-        this.loading = false;
-        this.yearsLeave = response.data;
-      }, (error)  =>  {
-        console.log(error);
-      });
-      axios.get("api/emp/"+ this.select)
-      .then((response)  =>  {
-        this.search = "";
-        this.emps = response.data;
-        if (this.emps.length == 0){
-          this.drawer = false;
-        }else{
-          this.drawer = true;
-        }
-        console.log(this.emps);
-      }, (error)  =>  {
-        console.log(error);
-      });
+      axios.get("api/list/"+ id + "/10")
+        .then((response)  =>  {
+          this.items =[];
+          this.search = "";
+          this.loading = false;
+          this.yearsLeave = response.data;
+        }, (error)  =>  {
+             console.log(error);
+        });
+    },
+    GetEmployee(id){
+        this.getReports(id);
+        this.getLeaves(id);
+    },
+    OnChange(){
+      var id = this.select;
+      this.select = "";
+      // this.loading = true;
+      this.search = "";
+      // this.yearsLeave = [];
+      this.GetEmployee(id);
+      
     },
     querySelections (v) {
       if (!v || v.length < 3 ){

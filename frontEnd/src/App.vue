@@ -10,11 +10,11 @@
       <v-subheader class="grey darken-3 white--text">Direct Reports</v-subheader>
       <template v-for="(emp,index) in emps">
         
-      <v-list-tile avatar ripple class="grey darken-1" @click="GetEmployee(emp.ID)" >
+      <v-list-tile avatar ripple class="grey darken-1" @click="GetEmployee(emp.id)" >
         <v-list-tile-content>
-          <v-list-tile-title class="indigo--text text--darken-4" v-html="emp.FullName"></v-list-tile-title>
-          <v-list-tile-sub-title class="yellow--text" v-html="emp.JobTitle"></v-list-tile-sub-title>
-          <v-list-tile-sub-title class="white--text" v-html="emp.Email"></v-list-tile-sub-title>
+          <v-list-tile-title class="indigo--text text--darken-4" v-html="emp.name"></v-list-tile-title>
+          <v-list-tile-sub-title class="yellow--text" v-html="emp.title"></v-list-tile-sub-title>
+          <v-list-tile-sub-title class="white--text" v-html="emp.email"></v-list-tile-sub-title>
         </v-list-tile-content>
       </v-list-tile>
       <v-divider v-if="index + 1 < emps.length"></v-divider>

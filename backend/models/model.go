@@ -5,7 +5,7 @@ import (
 )
 
 type Employee struct {
-	ID        uint      `gorm:"primary_key json:"id"`
+	ID        uint      `gorm:"primary_key" json:"id"`
 	CreatedAt time.Time `json:"created_at"`
 	FirstName string    `json:"-"`
 	LastName  string    `json:"-"`

@@ -126,6 +126,7 @@ func listEmployeeLeavesYears(w http.ResponseWriter, r *http.Request) {
 			Where("employee_id = ?", id).
 			Where("leave_date >= ?", st).
 			Where("leave_date < ?", ft).
+			Where("EXTRACT(dow FROM leave_date) IN (1,2,3,4,5)").
 			Group("leave_category_id, leave_names.name,leave_categories.name").
 			Order("count DESC, leave_categories.name")
 

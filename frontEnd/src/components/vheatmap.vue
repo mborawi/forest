@@ -75,7 +75,8 @@ class="elevation-1"
       {{c}}
     </div>
   </v-flex>  -->
-  <v-btn color="red" outline v-on:click="flipView()">Stats</v-btn>
+  <v-btn color="red" outline v-on:click="flipView()" v-if="!tableView" >Stats</v-btn>
+  <v-btn color="red" outline v-on:click="flipView()" v-if="tableView" >Calendar</v-btn>
   <v-btn color="info"   v-on:click="getSvg(CalendarData.file_title)">Export</v-btn>
 </v-layout>
 </v-container>
@@ -138,10 +139,12 @@ export default {
       return this.cSize * daDate.getDay();
     },
     getColor: function(daDate) {
-      var kw = moment(daDate).format("DD-MM");
+      var m = moment(daDate);
+      var kw = m.format("DD-MM");
       var z = 0.0;
-      if ( this.CalendarData.days == undefined){
-        return "#424242";
+      if ( m.weekday()%6==0){
+          // var isWeekend = kw.getDay()%6==0;
+          return "#595959";
       }
 
       if (!( kw in  this.CalendarData.days )){

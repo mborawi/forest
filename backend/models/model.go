@@ -28,7 +28,7 @@ type Leave struct {
 	LeaveTypeID     uint          `json:"-"`
 	LeaveCategoryID uint          `json:"-"`
 	Name            LeaveName     `json:"-"`
-	Type            LeaveType     `json:"-"`
+	LeaveType       LeaveType     `json:"-"`
 	Category        LeaveCategory `json:"-"`
 }
 
@@ -57,7 +57,7 @@ type LeaveCategory struct {
 }
 
 type LeaveType struct {
-	ID        uint `gorm:"primary_key"`
-	CreatedAt time.Time
-	Name      string `gorm:"size:40"`
+	ID        uint      `gorm:"primary_key" json:"-"`
+	CreatedAt time.Time `json:"-"`
+	Name      string    `gorm:"size:40" json:"name"`
 }

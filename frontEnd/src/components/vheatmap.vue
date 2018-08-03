@@ -25,6 +25,7 @@
             text-anchor="end"
             :width="cSize" :height="cSize" 
             :x="getX(d)" :y="getY(d)" :fill="getColor(d)" :fill-opacity="getOpacity(d)">
+            <title v-if="isLeaveDay(d)">{{getHoverText(d)}}</title>
           </rect>
 
           <path v-for="m in 12" :d="getPath(m)"
@@ -97,11 +98,8 @@
 </v-layout>
 </v-card-text>
 <v-card-actions>
-  <!-- <v-btn flat color="orange">Share</v-btn> -->
-  <!-- <v-btn flat color="orange">Explore</v-btn> -->
   <v-btn color="orange" flat v-on:click="flipView()" v-if="!tableView" >Stats</v-btn>
   <v-btn color="info" flat v-on:click="flipView()" v-if="tableView" >Calendar</v-btn>
-  
 </v-card-actions>
 </v-card>
 <!-- <v-layout align-end justify-end> -->
@@ -137,15 +135,29 @@ export default {
     headers:[
     // { text: 'Leave Type', value: 'name' },
     { text: 'Leave Category', value: 'cat' },
-    { text: 'Count', value: 'count' },
-    { text: 'Percentage', value: '' },
+    { text: 'Leaves Count', value: 'count' },
+    { text: 'Leaves Percentage', value: '' },
     ],
     colors : ['#BF360C','#FFFFFF','#FFD600','#00E676','#2E7D32','#9E9D24','#C6FF00','#00B0FF','#039BE5','#7C4DFF','#8C9EFF','#B39DDB','#FF4081','#AB47BC']
-
   }),
   methods: {
     flipView: function(){
       this.tableView = !this.tableView;
+    },
+    isLeaveDay: function(daDate){
+      var m = moment(daDate);
+      var kw = m.format("DD-MM");
+      if (kw in  this.CalendarData.days){
+        return true;
+      }
+      return false;
+    },
+    getHoverText: function(daDate){
+      var m = moment(daDate);
+      // var dt = m.format("DD-MM-YYYY") ;
+      // var kw = m.format("DD-MM");
+      // return ": ( "+this.LeaveTypes[this.CalendarData.days[kw].type_id].name+ " )";
+      return "txt";
     },
     getLegendx: function(index,planned=true){
       return 10*(index)+5;
@@ -196,9 +208,6 @@ export default {
       return 1.0;
 
     },
-    getValue: function(d){
-      return "hello";
-    },
     getTranslation: function(i){
       return "translate("+ (8+ i* 4.3 * this.cSize) + ",-3)";
     },
@@ -236,7 +245,7 @@ export default {
     this.firstSunday = new Date(Date.UTC(this.CalendarData.year, 0, 1 - fd_dow));
     
   },
-  props:['CalendarData'],
+  props:['CalendarData', 'LeaveTypes'],
   filters: {
     percent: function (value) {
       return numeral(value).format("0.00%"); 

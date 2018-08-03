@@ -50,7 +50,7 @@
             <!-- :CalendarData="yearcounts" -->
             <!-- > </vheatmap>  -->
             <!-- {{m.title}} -->
-            <vheatmap v-for="m in yearsLeave" :key="m.id" v-bind:data="m" :CalendarData="m">        </vheatmap>
+            <vheatmap v-for="m in yearsLeave" :key="m.id" v-bind:data="m" :CalendarData="m"  :LeaveTypes="leaveTypeNames">        </vheatmap>
 
           </v-flex>
         </v-layout>
@@ -75,6 +75,7 @@ export default {
     yearcounts : {days: {}, year: null, title:"Not Data Available"},
     yearsLeave : [],
     emps : [],
+    leaveTypeNames : [],
     customFilter (item, queryText, itemText) {
       return true;
     }
@@ -85,6 +86,16 @@ export default {
     }
   },
   methods: {
+    getLeaveTypes(){
+      this.leaveTypeNames = [];
+      axios.get("api/leaves")
+        .then((response)  =>  {
+            this.leaveTypeNames = response.data;
+            console.log(this.leaveTypeNames);
+          }, (error)  =>  {
+            console.log(error);
+          });
+    },
     getReports(id){
       this.emps = [];
       axios.get("api/emp/"+ id)
@@ -139,7 +150,10 @@ export default {
         console.log(error);
       })
 
-    }
+    },
+  },
+  created: function(){
+      this.getLeaveTypes();
   },
   components: {
     'vheatmap': vheatmap

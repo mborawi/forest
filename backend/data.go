@@ -20,8 +20,9 @@ type result struct {
 type LeaveDay struct {
 	Count     int    `json:"count"`
 	CatId     uint   `json:"cat_id"`
-	CatName   string `json:"cat"`
-	LeaveName string `json:"name"`
+	CatName   string `json:"cat,omitempty"`
+	LeaveName string `json:"name,omitempty"`
+	TypeId    uint   `json:"type_id"`
 }
 
 type YrLeaves struct {

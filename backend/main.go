@@ -36,6 +36,7 @@ func main() {
 	router := mux.NewRouter().StrictSlash(false)
 	router.HandleFunc("/api/list/{id:[0-9]+}/{yr:[0-9]+}", listEmployeeLeavesYears)
 	router.HandleFunc("/api/emp/{id:[0-9]+}", listEmployeeDetails)
+	router.HandleFunc("/api/leaves", listleavesHandler)
 	router.HandleFunc("/api/search", SearchHandler)
 	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("../frontEnd/dist/static/"))))
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { http.ServeFile(w, r, "../frontEnd/dist/index.html") })
@@ -82,6 +83,15 @@ func SearchHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(suggestions)
+}
+
+func listleavesHandler(w http.ResponseWriter, r *http.Request) {
+	lvs := []models.LeaveType{}
+	db.
+		Order("id").
+		Find(&lvs)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(lvs)
 }
 
 func listEmployeeDetails(w http.ResponseWriter, r *http.Request) {
@@ -144,11 +154,11 @@ func listEmployeeLeavesYears(w http.ResponseWriter, r *http.Request) {
 			Order("leave_date").
 			Find(&leaves)
 		res.Total = len(leaves)
-		res.Title = fmt.Sprintf("Leaves for: %s %s, Year: %d", emp.FirstName, emp.LastName, st.Year())
+		res.Title = fmt.Sprintf("%s %s's leave days %d", emp.FirstName, emp.LastName, st.Year())
 		res.FileTitle = fmt.Sprintf("Leaves_%s_%s_%d", emp.FirstName, emp.LastName, st.Year())
 		res.Year = st.Year()
 		for _, l := range leaves {
-			res.Days[l.LeaveDate.Format("02-01")] = LeaveDay{Count: -1, CatId: l.LeaveCategoryID}
+			res.Days[l.LeaveDate.Format("02-01")] = LeaveDay{Count: -1, CatId: l.LeaveCategoryID, TypeId: l.LeaveTypeID}
 		}
 		results = append(results, res)
 

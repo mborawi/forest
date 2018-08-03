@@ -75,7 +75,7 @@ func createRanges(N, stYr, fnYr int) {
 				m := rand.Intn(13) + 1
 				d := rand.Intn(28) + 1
 				leaveStarts := time.Date(y, time.Month(m), d, 0, 0, 0, 0, time.UTC)
-				duration := time.Hour * 24 * time.Duration(rand.Intn(4)+1)
+				duration := time.Hour * 24 * time.Duration(rand.Intn(8)+1)
 				leaveEnds := leaveStarts.Add(duration)
 				rr := rand.Intn(len(cats))
 				fmt.Fprintf(w, "%d,%d,%s,%s,%.2f,%s,%s,PLWOP TCAS\n",

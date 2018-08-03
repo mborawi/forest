@@ -17,7 +17,7 @@
           stroke="#666"
           text-anchor="end"
           :width="cSize" :height="cSize" 
-          :x="getX(d)" :y="getY(d)" :fill="getColor(d)">
+          :x="getX(d)" :y="getY(d)" :fill="getColor(d)" :fill-opacity="getOpacity(d)">
         </rect>
 
         <path v-for="m in 12" :d="getPath(m)"
@@ -142,15 +142,24 @@ export default {
       var m = moment(daDate);
       var kw = m.format("DD-MM");
       var z = 0.0;
-      if ( m.weekday()%6==0){
-          // var isWeekend = kw.getDay()%6==0;
-          return "#595959";
-      }
 
       if (!( kw in  this.CalendarData.days )){
+        if ( m.weekday()%6==0){
+            return "#595959";
+        }
         return "#424242";
       }
+      // console.log(BF360C-1)
       return this.colors[this.CalendarData.days[kw].cat_id-1];
+    },
+    getOpacity: function(daDate) {
+      var m = moment(daDate);
+      var kw = m.format("DD-MM");
+      if ( kw in  this.CalendarData.days &&  m.weekday()%6==0){
+        return 0.75;
+      }
+      return 1.0;
+
     },
     getValue: function(d){
       return "hello";

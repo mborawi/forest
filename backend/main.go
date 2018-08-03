@@ -154,7 +154,7 @@ func listEmployeeLeavesYears(w http.ResponseWriter, r *http.Request) {
 			Order("leave_date").
 			Find(&leaves)
 		res.Total = len(leaves)
-		res.Title = fmt.Sprintf("%d", st.Year())
+		res.Title = fmt.Sprintf("%s %s leaves in %d", emp.FirstName, emp.LastName, st.Year())
 		res.FileTitle = fmt.Sprintf("Leaves_%s_%s_%d", emp.FirstName, emp.LastName, st.Year())
 		res.Year = st.Year()
 		for _, l := range leaves {

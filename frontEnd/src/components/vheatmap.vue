@@ -1,11 +1,11 @@
 <template>
   <v-container fluid>
     <v-card>
-     <v-card-title primary-title>
-      <div>
-        <h2>{{CalendarData.title}}</h2>
-      </div>
-    </v-card-title>
+     <v-card-text >
+      <!-- <div class="text-xs-center"> -->
+        <h2 class="text-xs-center">{{CalendarData.title}}</h2>
+      <!-- </div> -->
+    </v-card-text>
     <v-card-media>
       <v-layout row v-if="!tableView">
         <v-flex class="calender-map">

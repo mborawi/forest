@@ -138,7 +138,7 @@ export default {
     { text: 'Leaves Count', value: 'count' },
     { text: 'Leaves Percentage', value: '' },
     ],
-    colors : ['#BF360C','#FFFFFF','#FFD600','#00E676','#2E7D32','#9E9D24','#C6FF00','#00B0FF','#039BE5','#7C4DFF','#8C9EFF','#B39DDB','#FF4081','#AB47BC']
+    colors : ['#BF360C','#FFFFFF','#FFD600','#00E676','#2E7D32','#9E9D24','#C6FF00','#00B0FF','#039BE5','#7C4DFF','#8C9EFF','#B39DDB','#FF4081','#AB47BC' ,'#DCED8','#E65100']
   }),
   methods: {
     flipView: function(){

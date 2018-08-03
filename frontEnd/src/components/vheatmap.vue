@@ -1,84 +1,119 @@
 <template>
   <v-container fluid>
-    <v-layout row v-if="!tableView">
-      <v-flex class="calender-map">
-        <svg viewBox="0 0 700 135" xmlns="http://www.w3.org/2000/svg" v-if="CalendarData.year">
-          <text transform="translate(350,10)" font-size="10px"  font="sans-serif" width="100%" style="text-anchor: middle;" fill="black">{{CalendarData.title}}</text>
-          <g transform="translate(40,30)" 
-          font-size="10px" font="sans-serif" shape-rendering="crispEdges" width="100%">
-          <text transform="translate(-25,42)rotate(-90)" style="text-anchor: middle;  fill: white;">{{CalendarData.year}}</text>
+    <v-card>
+     <v-card-title primary-title>
+      <div>
+        <h2>{{CalendarData.title}}</h2>
+      </div>
+    </v-card-title>
+    <v-card-media>
+      <v-layout row v-if="!tableView">
+        <v-flex class="calender-map">
+          <svg viewBox="0 0 700 135" xmlns="http://www.w3.org/2000/svg" v-if="CalendarData.year">
+            <!-- <text transform="translate(350,10)" font-size="10px"  font="sans-serif" width="100%" style="text-anchor: middle;" fill="black">{{CalendarData.title}}</text> -->
+            <g transform="translate(40,30)" 
+            font-size="10px" font="sans-serif" shape-rendering="crispEdges" width="100%">
+            <text transform="translate(-25,42)rotate(-90)" style="text-anchor: middle;  fill: white;">{{CalendarData.year}}</text>
 
-          <text class="dow" v-for="d in 7" :transform="getDayTranslations(d)"  dy="-.25em"     fill="black" text-anchor="end">{{dayNames[d-1]}}</text>
+            <text class="dow" v-for="d in 7" :transform="getDayTranslations(d)"  dy="-.25em"     fill="black" text-anchor="end">{{dayNames[d-1]}}</text>
 
-          <g v-for="i in 12" class="month" :transform="getTranslation(i)" >
-            <text style="text-anchor: end;" dy="-.25em">{{monthNames[i-1]}}</text>
+            <g v-for="i in 12" class="month" :transform="getTranslation(i)" >
+              <text style="text-anchor: end;" dy="-.25em">{{monthNames[i-1]}}</text>
+            </g>
+            <rect  v-for="d in AllDays" 
+            stroke="#666"
+            text-anchor="end"
+            :width="cSize" :height="cSize" 
+            :x="getX(d)" :y="getY(d)" :fill="getColor(d)" :fill-opacity="getOpacity(d)">
+          </rect>
+
+          <path v-for="m in 12" :d="getPath(m)"
+          class="border" fill="none" stroke="#000" stroke-width="2px"></path>
+          <text x="1.6em" dy="13.3em" fill="black" font-size="7px" font-weight="bold">Planned:</text>
+          <text x="1.6em" dy="14.8em" fill="black" font-size="7px" font-weight="bold">Unplanned</text>
+          <g v-for="(pl, ind) in CalendarData.pcounts">
+            <rect stroke="#666" :width="cSize/2" :height="cSize/2" 
+            :x="getLegendx(ind)+'em'" y="8.7em" :fill="colors[pl.cat_id-1]"> </rect>
+            <text :x="getLegendText(ind)+'em'" dy="13.3em" font-size="7px" fill="black">{{pl.cat}}</text>
           </g>
-          <rect  v-for="d in AllDays" 
-          stroke="#666"
-          text-anchor="end"
-          :width="cSize" :height="cSize" 
-          :x="getX(d)" :y="getY(d)" :fill="getColor(d)" :fill-opacity="getOpacity(d)">
-        </rect>
+          <g v-for="(ul, ind) in CalendarData.ucounts">
+            <rect  stroke="#666"  :width="cSize/2" :height="cSize/2" 
+            :x="getLegendx(ind)+'em'" y="9.8em" :fill="colors[ul.cat_id-1]"> </rect> 
+            <text :x="getLegendText(ind)+'em'" dy="14.8em" fill="black" font-size="7px">{{ul.cat}}</text>
+          </g>
+        </g>
+      </svg>
+    </v-flex>
+    <v-flex>
 
-        <path v-for="m in 12" :d="getPath(m)"
-        class="border" fill="none" stroke="#000" stroke-width="2px"></path>
-        <text x="1.6em" dy="13.3em" fill="black" font-size="7px" font-weight="bold">Planned:</text>
-        <text x="1.6em" dy="14.8em" fill="black" font-size="7px" font-weight="bold">Unplanned</text>
-        <g v-for="(pl, ind) in CalendarData.pcounts">
-        <rect stroke="#666" :width="cSize/2" :height="cSize/2" 
-          :x="getLegendx(ind)+'em'" y="8.7em" :fill="colors[pl.cat_id-1]"> </rect>
-          <text :x="getLegendText(ind)+'em'" dy="13.3em" font-size="7px" fill="black">{{pl.cat}}</text>
-        </g>
-        <g v-for="(ul, ind) in CalendarData.ucounts">
-        <rect  stroke="#666"  :width="cSize/2" :height="cSize/2" 
-          :x="getLegendx(ind)+'em'" y="9.8em" :fill="colors[ul.cat_id-1]"> </rect> 
-          <text :x="getLegendText(ind)+'em'" dy="14.8em" fill="black" font-size="7px">{{ul.cat}}</text>
-        </g>
-      </g>
-    </svg>
+    </v-flex>
+  </v-layout>
+</v-card-media>
+<v-card-text>
+  <v-layout align-top justify-space-around v-if="tableView"   class="tr pop-up-message grey lighten-3">
+    <v-flex xs5 class="my-4">
+      <v-card color="green lighten-4">
+        <v-card-title primary-title>
+          <div>
+            <h3>Planned Leave Statistics</h3>
+          </div>
+        </v-card-title>
+        <v-data-table
+        :headers="headers"
+        :items="CalendarData.pcounts"
+        hide-actions
+        class="elevation-1 pa-2"
+        >
+        <template slot="items" slot-scope="props">
+          <!-- <td class="text-xs-right">{{ props.item.name }}</td> -->
+          <td class="text-xs-left">{{ props.item.cat }}</td>
+          <td class="text-xs-center">{{ props.item.count }}</td>
+          <td class="text-xs-center">{{ props.item.count / CalendarData.total | percent }}</td>
+        </template>
+      </v-data-table>
+    </v-card>
   </v-flex>
-  <v-flex>
-    
-  </v-flex>
+  <v-flex xs5 class="my-4">
+    <v-card color="red lighten-5">
+      <v-card-title primary-title>
+        <div>
+          <h3>Unplanned Leave Statistics</h3>
+        </div>
+      </v-card-title>
+      <v-data-table
+      :headers="headers"
+      :items="CalendarData.ucounts"
+      hide-actions
+      class="elevation-1 pa-2">
+      <template slot="items" slot-scope="props">
+        <!-- <td class="text-xs-right">{{ props.item.name }}</td> -->
+        <td class="text-xs-left">{{ props.item.cat }}</td>
+        <td class="text-xs-center">{{ props.item.count }}</td>
+        <td class="text-xs-center">{{ props.item.count / CalendarData.total | percent }}</td>
+      </template>
+    </v-data-table>
+  </v-card>
+</v-flex> 
 </v-layout>
-<v-layout align-top justify-center v-if="tableView" class="tr pop-up-message">
-  <v-data-table
-  :headers="headers"
-  :items="CalendarData.pcounts"
-  hide-actions
-  class="elevation-1"
-  >
-  <template slot="items" slot-scope="props">
-    <td class="text-xs-right">{{ props.item.name }}</td>
-    <td class="text-xs-right">{{ props.item.cat }}</td>
-    <td class="text-xs-right">{{ props.item.count }}</td>
-    <td class="text-xs-right">{{ props.item.count / CalendarData.total | percent }}</td>
-  </template>
-</v-data-table>
-<v-data-table
-:headers="headers"
-:items="CalendarData.ucounts"
-hide-actions
-class="elevation-1"
->
-<template slot="items" slot-scope="props">
-  <td class="text-xs-right">{{ props.item.name }}</td>
-  <td class="text-xs-right">{{ props.item.cat }}</td>
-  <td class="text-xs-right">{{ props.item.count }}</td>
-  <td class="text-xs-right">{{ props.item.count / CalendarData.total | percent }}</td>
-</template>
-</v-data-table>
-</v-layout>
-<v-layout align-end justify-end>
+</v-card-text>
+<v-card-actions>
+  <!-- <v-btn flat color="orange">Share</v-btn> -->
+  <!-- <v-btn flat color="orange">Explore</v-btn> -->
+  <v-btn color="orange" flat v-on:click="flipView()" v-if="!tableView" >Stats</v-btn>
+  <v-btn color="info" flat v-on:click="flipView()" v-if="tableView" >Calendar</v-btn>
+  
+</v-card-actions>
+</v-card>
+<!-- <v-layout align-end justify-end> -->
 <!--   <v-flex >
     <div v-for="c in colors" style="height:1.4em;  width: 1.4em; border-color: #00E676; margin:2px; background:coral;" v-bind:style="{background:c}">
       {{c}}
     </div>
   </v-flex>  -->
-  <v-btn color="red" outline v-on:click="flipView()" v-if="!tableView" >Stats</v-btn>
-  <v-btn color="red" outline v-on:click="flipView()" v-if="tableView" >Calendar</v-btn>
-  <v-btn color="info"   v-on:click="getSvg(CalendarData.file_title)">Export</v-btn>
-</v-layout>
+  <!-- <v-btn color="red" outline v-on:click="flipView()" v-if="!tableView" >Stats</v-btn> -->
+  <!-- <v-btn color="info" outline v-on:click="flipView()" v-if="tableView" >Calendar</v-btn> -->
+  <!-- <v-btn color="info"   v-on:click="getSvg(CalendarData.file_title)">Export</v-btn> -->
+  <!-- </v-layout> -->
 </v-container>
 </template>
 
@@ -100,7 +135,7 @@ export default {
     monthNames : [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ],
     tableView : false,
     headers:[
-    { text: 'Leave Type', value: 'name' },
+    // { text: 'Leave Type', value: 'name' },
     { text: 'Leave Category', value: 'cat' },
     { text: 'Count', value: 'count' },
     { text: 'Percentage', value: '' },
@@ -145,7 +180,7 @@ export default {
 
       if (!( kw in  this.CalendarData.days )){
         if ( m.weekday()%6==0){
-            return "#595959";
+          return "#595959";
         }
         return "#424242";
       }

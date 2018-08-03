@@ -154,10 +154,9 @@ export default {
     },
     getHoverText: function(daDate){
       var m = moment(daDate);
-      // var dt = m.format("DD-MM-YYYY") ;
-      // var kw = m.format("DD-MM");
-      // return ": ( "+this.LeaveTypes[this.CalendarData.days[kw].type_id].name+ " )";
-      return "txt";
+      var dt = m.format("DD-MMM-YYYY") ;
+      var kw = m.format("DD-MM");
+      return dt+": ( "+this.LeaveTypes[this.CalendarData.days[kw].type_id].name+ " )";
     },
     getLegendx: function(index,planned=true){
       return 10*(index)+5;

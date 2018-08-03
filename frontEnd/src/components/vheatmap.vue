@@ -31,7 +31,7 @@
           <path v-for="m in 12" :d="getPath(m)"
           class="border" fill="none" stroke="#000" stroke-width="2px"></path>
           <text x="1.6em" dy="13.3em" fill="black" font-size="7px" font-weight="bold">Planned:</text>
-          <text x="1.6em" dy="14.8em" fill="black" font-size="7px" font-weight="bold">Unplanned</text>
+          <text x="1.6em" dy="14.8em" fill="black" font-size="7px" font-weight="bold">Unplanned:</text>
           <g v-for="(pl, ind) in CalendarData.pcounts">
             <rect stroke="#666" :width="cSize/2" :height="cSize/2" 
             :x="getLegendx(ind)+'em'" y="8.7em" :fill="colors[pl.cat_id-1]"> </rect>
@@ -56,7 +56,7 @@
       <v-card color="green lighten-4">
         <v-card-title primary-title>
           <div>
-            <h3>Planned Leave Statistics</h3>
+            <h3>Planned Leave</h3>
           </div>
         </v-card-title>
         <v-data-table
@@ -78,7 +78,7 @@
     <v-card color="red lighten-5">
       <v-card-title primary-title>
         <div>
-          <h3>Unplanned Leave Statistics</h3>
+          <h3>Unplanned Leave</h3>
         </div>
       </v-card-title>
       <v-data-table
@@ -98,8 +98,14 @@
 </v-layout>
 </v-card-text>
 <v-card-actions>
-  <v-btn color="orange" flat v-on:click="flipView()" v-if="!tableView" >Stats</v-btn>
-  <v-btn color="info" flat v-on:click="flipView()" v-if="tableView" >Calendar</v-btn>
+  <v-btn color="orange" flat v-on:click="flipView()" v-if="!tableView" >
+  <v-icon left>table_chart</v-icon>
+  Statistics
+</v-btn>
+  <v-btn color="info" flat v-on:click="flipView()" v-if="tableView" >
+  <v-icon left dark>insert_chart_outlined</v-icon>
+  Calendar
+</v-btn>
 </v-card-actions>
 </v-card>
 <!-- <v-layout align-end justify-end> -->
@@ -134,9 +140,9 @@ export default {
     tableView : false,
     headers:[
     // { text: 'Leave Type', value: 'name' },
-    { text: 'Leave Category', value: 'cat' },
-    { text: 'Leaves Count', value: 'count' },
-    { text: 'Leaves Percentage', value: '' },
+    { text: 'Category', value: 'cat' },
+    { text: 'Count', value: 'count' },
+    { text: 'Percentage', value: '' },
     ],
     colors : ['#BF360C','#FFFFFF','#FFD600','#00E676','#2E7D32','#9E9D24','#C6FF00','#00B0FF','#039BE5','#7C4DFF','#8C9EFF','#B39DDB','#FF4081','#AB47BC' ,'#DCED8','#E65100']
   }),

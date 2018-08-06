@@ -165,7 +165,9 @@ export default {
     dayNames:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
     monthNames : [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ],
     tableView : false,
-    dowh: [{text: 'Weekday', value:'day', sortable: false  },{text: 'Absences', value:'count', sortable: true}],
+    dowh: [
+    {text: 'Weekday' , value:'day',   align:'left',  class:'grey lighten-4' },
+    {text: 'Absences', value:'count', align:'left', class:'grey lighten-4'}],
     headers:[
     // { text: 'Leave Type', value: 'name' },
     { text: 'Category', value: 'cat', align:'center', class:'grey lighten-4' },

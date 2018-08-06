@@ -98,6 +98,10 @@
 </v-layout>
 </v-card-text>
 <v-card-actions>
+  <v-btn color="amber darken-4" flat v-on:click="getCSV(CalendarData.file_title)" v-if="tableView">
+  <v-icon left>save_alt</v-icon>
+    Export CSV
+  </v-btn>
   <v-btn color="orange" flat v-on:click="flipView()" v-if="!tableView" >
   <v-icon left>table_chart</v-icon>
   Statistics
@@ -107,7 +111,7 @@
   Calendar
 </v-btn>
 <!-- <v-btn color="info"   v-on:click="getSvg(CalendarData.file_title)">Export</v-btn> -->
-<v-btn color="info"   v-on:click="getCSV(CalendarData.file_title)">Export</v-btn>
+
 </v-card-actions>
 </v-card>
 <!-- <v-layout align-end justify-end> -->
@@ -206,16 +210,19 @@ export default {
         var csv = "Planned Leave,,,Unplanned Leave,,\r\n";
         csv += "Category,Count,Percentage,Category,Count,Percentage\r\n";
         var lncnt = Math.max(this.CalendarData.pcounts.length, this.CalendarData.ucounts.length);
+        var plcnt = this.countDays(this.CalendarData.pcounts);
+        var unplcnt = this.countDays(this.CalendarData.ucounts);
+
         for(var i=0; i < lncnt;i++){
           if (!this.CalendarData.pcounts[i]){
             csv += ",,,";
           }else{
-            csv += this.CalendarData.pcounts[i].cat + "," + this.CalendarData.pcounts[i].count + ",,"   
+            csv += this.CalendarData.pcounts[i].cat + "," + this.CalendarData.pcounts[i].count + ","+   this.CalendarData.pcounts[i].count/plcnt * 100 + "%,";
           }
           if(!this.CalendarData.ucounts[i]){
-            csv += ",,\r\n";
+            csv += ",,,\r\n";
           }else{
-            csv += this.CalendarData.ucounts[i].cat + "," + this.CalendarData.ucounts[i].count + ",\r\n";
+            csv += this.CalendarData.ucounts[i].cat + "," + this.CalendarData.ucounts[i].count + ","+ this.CalendarData.ucounts[i].count/unplcnt * 100+ "% \r\n";
           }
         }
         csv +="\r\n\r\nTotal Planned,"+ this.countDays(this.CalendarData.pcounts)+",100%";

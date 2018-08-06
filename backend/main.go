@@ -149,6 +149,7 @@ func listEmployeeLeavesYears(w http.ResponseWriter, r *http.Request) {
 		db.
 			Table("leaves").
 			Select("EXTRACT(dow FROM leave_date) as DOW, to_char(leave_date,'day') as Day, count(leave_date) as Count").
+			Where("leave_name_id = 2").
 			Where("employee_id = ?", id).
 			Where("leave_date >= ?", st).
 			Where("leave_date < ?", ft).
@@ -170,7 +171,11 @@ func listEmployeeLeavesYears(w http.ResponseWriter, r *http.Request) {
 		res.FileTitle = fmt.Sprintf("Leaves_%s_%s_%d", emp.FirstName, emp.LastName, st.Year())
 		res.Year = st.Year()
 		for _, l := range leaves {
-			res.Days[l.LeaveDate.Format("02-01")] = LeaveDay{Count: -1, CatId: l.LeaveCategoryID, TypeId: l.LeaveTypeID}
+			res.Days[l.LeaveDate.Format("02-01")] = LeaveDay{
+				Count:  -1,
+				NameID: l.LeaveNameID,
+				CatId:  l.LeaveCategoryID,
+				TypeId: l.LeaveTypeID}
 		}
 		results = append(results, res)
 

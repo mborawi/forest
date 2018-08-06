@@ -30,14 +30,17 @@
 
             <path v-for="m in 12" :d="getPath(m)"
             class="border" fill="none" stroke="#000" stroke-width="2px"></path>
-            <text x="1.6em" dy="13.3em" fill="black" font-size="7px" font-weight="bold">Planned:</text>
-            <text x="1.6em" dy="14.8em" fill="black" font-size="7px" font-weight="bold">Unplanned:</text>
-            <g v-for="(pl, ind) in CalendarData.pcounts">
+
+            <text x="1.6em" dy="13.3em" fill="black" font-size="7px" font-weight="bold" v-if="showPlanned && CalendarData.pcounts.length > 0">Planned:</text>
+
+            <text x="1.6em" dy="14.8em" fill="black" font-size="7px" font-weight="bold" v-if="showUnplanned && CalendarData.ucounts.length > 0">Unplanned:</text>
+
+            <g v-for="(pl, ind) in CalendarData.pcounts" v-if="showPlanned">
               <rect stroke="#666" :width="cSize/2" :height="cSize/2" 
               :x="getLegendx(ind)+'em'" y="8.7em" :fill="colors[pl.cat_id-1]"> </rect>
               <text :x="getLegendText(ind)+'em'" dy="13.3em" font-size="7px" fill="black">{{pl.cat}}</text>
             </g>
-            <g v-for="(ul, ind) in CalendarData.ucounts">
+            <g v-for="(ul, ind) in CalendarData.ucounts" v-if="showUnplanned">
               <rect  stroke="#666"  :width="cSize/2" :height="cSize/2" 
               :x="getLegendx(ind)+'em'" y="9.8em" :fill="colors[ul.cat_id-1]"> </rect> 
               <text :x="getLegendText(ind)+'em'" dy="14.8em" fill="black" font-size="7px">{{ul.cat}}</text>
@@ -52,26 +55,6 @@
   </v-card-media>
   <v-card-text>
     <v-layout align-top justify-space-around v-if="tableView"   class="tr pop-up-message grey lighten-3">
-      <v-flex xs3 class="my-3"> 
-        <v-card color="indigo lighten-5">
-          <v-card-title primary-title>
-            <div>
-              <h3 class="indigo--text text--darken-4">Weekday Absences</h3>
-            </div>
-          </v-card-title>
-          <v-data-table
-          :headers="dowh"
-          :items="CalendarData.dows"
-          disable-initial-sort
-          hide-actions
-          class="elevation-1 pa-2">
-          <template slot="items" slot-scope="props">
-            <td class="text-xs-left">{{ props.item.day | capitalize }}</td>
-            <td class="text-xs-center">{{ props.item.count }}</td>
-          </template>
-        </v-data-table>
-      </v-card>
-    </v-flex> 
     <v-flex xs4 class="my-3">
       <v-card color="green lighten-5">
         <v-card-title primary-title>
@@ -94,6 +77,26 @@
       </v-data-table>
     </v-card>
   </v-flex>
+   <v-flex xs3 class="my-3"> 
+        <v-card color="indigo lighten-5">
+          <v-card-title primary-title>
+            <div>
+              <h3 class="indigo--text text--darken-4">Unplanned Absences</h3>
+            </div>
+          </v-card-title>
+          <v-data-table
+          :headers="dowh"
+          :items="CalendarData.dows"
+          disable-initial-sort
+          hide-actions
+          class="elevation-1 pa-2">
+          <template slot="items" slot-scope="props">
+            <td class="text-xs-left">{{ props.item.day | capitalize }}</td>
+            <td class="text-xs-center">{{ props.item.count }}</td>
+          </template>
+        </v-data-table>
+      </v-card>
+    </v-flex> 
   <v-flex xs4 class="my-3">
     <v-card color="red lighten-5">
       <v-card-title primary-title>
@@ -122,11 +125,30 @@
     <v-icon left>table_chart</v-icon>
     Statistics
   </v-btn>
+  <v-spacer v-if="!tableView"></v-spacer>
+  <v-flex xs2 justify-end v-if="!tableView"> 
+  <v-switch
+      v-if="!tableView"
+      v-model="showPlanned"
+      label="Planned Leaves"
+      color="green darken-4"
+      value="red"
+      hide-details
+    ></v-switch>
+    <v-switch
+      v-if="!tableView"
+      v-model="showUnplanned"
+      label="Unplanned Leaves"
+      color="red darken-4"
+      value="red darken-3"
+      hide-details
+    ></v-switch>
+    </v-flex>
   <v-btn color="info" flat v-on:click="flipView()" v-if="tableView" >
     <v-icon left dark>insert_chart_outlined</v-icon>
     Calendar
   </v-btn>
-  <v-spacer></v-spacer>
+  <v-spacer v-if="tableView"></v-spacer>
   <v-btn color="amber darken-4" flat v-on:click="getCSV(CalendarData.file_title)" v-if="tableView">
     <v-icon left>save_alt</v-icon>
     Export CSV
@@ -162,6 +184,8 @@ export default {
     heatColor: "#002b53",
     colorRange: null,
     firstSunday: null,
+    showPlanned: true,
+    showUnplanned: true,
     dayNames:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
     monthNames : [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ],
     tableView : false,
@@ -287,13 +311,13 @@ export default {
       var kw = m.format("DD-MM");
       var z = 0.0;
 
-      if (!( kw in  this.CalendarData.days )){
+      if (!( kw in  this.CalendarData.days ) || (!this.showPlanned && this.CalendarData.days[kw].name_id==1) || (!this.showUnplanned && this.CalendarData.days[kw].name_id==2)){
         if ( m.weekday()%6==0){
           return "#595959";
         }
         return "#424242";
       }
-      // console.log(BF360C-1)
+      
       return this.colors[this.CalendarData.days[kw].cat_id-1];
     },
     getOpacity: function(daDate) {
@@ -335,7 +359,6 @@ export default {
     }
   },
   created: function () {
-    // console.log("hello");
     this.generateDates();
     this.colorRange = d3.scale.linear().range(["white", this.heatColor]).domain([0, 1]);
     var fd_dow = new Date(Date.UTC(this.CalendarData.year,0,1)).getDay();

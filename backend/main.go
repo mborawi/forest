@@ -145,6 +145,18 @@ func listEmployeeLeavesYears(w http.ResponseWriter, r *http.Request) {
 		res.PlCounts = plds
 		res.UplCounts = uplds
 
+		dows := []DayCounts{}
+		db.
+			Table("leaves").
+			Select("EXTRACT(dow FROM leave_date) as DOW, to_char(leave_date,'day') as Day, count(leave_date) as Count").
+			Where("employee_id = ?", id).
+			Where("leave_date >= ?", st).
+			Where("leave_date < ?", ft).
+			Where("EXTRACT(dow FROM leave_date) IN (1,2,3,4,5)").
+			Group("EXTRACT(dow FROM leave_date),to_char(leave_date,'day')").
+			Order("Count DESC, DOW").
+			Scan(&dows)
+		res.Dows = dows
 		leaves = []models.Leave{}
 		db.
 			// Debug().

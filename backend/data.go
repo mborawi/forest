@@ -14,6 +14,7 @@ type result struct {
 	Min       uint                `json:"min"`
 	PlCounts  []LeaveDay          `json:"pcounts"`
 	UplCounts []LeaveDay          `json:"ucounts"`
+	Dows      []DayCounts         `json:"dows"`
 	Total     int                 `json:"total"`
 }
 
@@ -27,4 +28,10 @@ type LeaveDay struct {
 
 type YrLeaves struct {
 	TotalCount uint
+}
+
+type DayCounts struct {
+	DOW   uint   `json:"-"`
+	Day   string `json:"day"`
+	Count uint   `json:"count"`
 }

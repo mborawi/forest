@@ -53,10 +53,10 @@
 <v-card-text>
   <v-layout align-top justify-space-around v-if="tableView"   class="tr pop-up-message grey lighten-3">
     <v-flex xs5 class="my-4">
-      <v-card color="green lighten-4">
+      <v-card color="green lighten-5">
         <v-card-title primary-title>
           <div>
-            <h3>Planned Leave</h3>
+            <h3 class="green--text text--darken-4">Planned Leave</h3>
           </div>
         </v-card-title>
         <v-data-table
@@ -69,7 +69,7 @@
           <!-- <td class="text-xs-right">{{ props.item.name }}</td> -->
           <td class="text-xs-left">{{ props.item.cat }}</td>
           <td class="text-xs-center">{{ props.item.count }}</td>
-          <td class="text-xs-center">{{ props.item.count / CalendarData.total | percent }}</td>
+          <td class="text-xs-center">{{ props.item.count / countAll(CalendarData.pcounts, CalendarData.ucounts) | percent }}</td>
         </template>
       </v-data-table>
     </v-card>
@@ -78,7 +78,7 @@
     <v-card color="red lighten-5">
       <v-card-title primary-title>
         <div>
-          <h3>Unplanned Leave</h3>
+          <h3 class="red--text text--darken-4">Unplanned Leave</h3>
         </div>
       </v-card-title>
       <v-data-table
@@ -90,7 +90,7 @@
         <!-- <td class="text-xs-right">{{ props.item.name }}</td> -->
         <td class="text-xs-left">{{ props.item.cat }}</td>
         <td class="text-xs-center">{{ props.item.count }}</td>
-        <td class="text-xs-center">{{ props.item.count / CalendarData.total | percent }}</td>
+        <td class="text-xs-center">{{ props.item.count / countAll(CalendarData.pcounts, CalendarData.ucounts) | percent }}</td>
       </template>
     </v-data-table>
   </v-card>
@@ -106,6 +106,8 @@
   <v-icon left dark>insert_chart_outlined</v-icon>
   Calendar
 </v-btn>
+<!-- <v-btn color="info"   v-on:click="getSvg(CalendarData.file_title)">Export</v-btn> -->
+<v-btn color="info"   v-on:click="getCSV(CalendarData.file_title)">Export</v-btn>
 </v-card-actions>
 </v-card>
 <!-- <v-layout align-end justify-end> -->
@@ -116,7 +118,7 @@
   </v-flex>  -->
   <!-- <v-btn color="red" outline v-on:click="flipView()" v-if="!tableView" >Stats</v-btn> -->
   <!-- <v-btn color="info" outline v-on:click="flipView()" v-if="tableView" >Calendar</v-btn> -->
-  <!-- <v-btn color="info"   v-on:click="getSvg(CalendarData.file_title)">Export</v-btn> -->
+  
   <!-- </v-layout> -->
 </v-container>
 </template>
@@ -140,11 +142,31 @@ export default {
     tableView : false,
     headers:[
     // { text: 'Leave Type', value: 'name' },
-    { text: 'Category', value: 'cat' },
-    { text: 'Count', value: 'count' },
-    { text: 'Percentage', value: '' },
+    { text: 'Category', value: 'cat', align:'center', class:'grey lighten-4' },
+    { text: 'Count', value: 'count', align:'center', class:'grey lighten-4'  },
+    { text: 'Percentage', value: '', align:'center', class:'grey lighten-4'  },
     ],
-    colors : ['#BF360C','#FFFFFF','#FFD600','#00E676','#2E7D32','#9E9D24','#C6FF00','#00B0FF','#039BE5','#7C4DFF','#8C9EFF','#B39DDB','#FF4081','#AB47BC' ,'#DCED8','#E65100']
+    colors : [
+        '#00897B',
+        '#1976D2',
+        '#29B6F6',
+        '#2E7D32',
+        '#78909C',
+        '#7986CB',
+        '#7CB342',
+        '#7E57C2',
+        '#81C784',
+        '#A1887F',
+        '#BA68C8',
+        '#C6FF00',
+        '#D4E157',
+        '#E0E0E0',
+        '#E6EE9C',
+        '#EC407A',
+        '#F4511E',
+        '#EF5350',
+        '#FF6F00',
+        '#FFA726'  ]
   }),
   methods: {
     flipView: function(){
@@ -158,6 +180,16 @@ export default {
       }
       return false;
     },
+    countDays:function(days){
+      var dcount = 0;
+      for (var i = 0; i< days.length; i++){
+        dcount += days[i].count;
+      }
+      return dcount;
+    },
+    countAll: function(upls , pls){
+      return this.countDays(upls) + this.countDays(pls);
+    },
     getHoverText: function(daDate){
       var m = moment(daDate);
       var dt = m.format("DD-MMM-YYYY") ;
@@ -169,6 +201,35 @@ export default {
     },
     getLegendText: function(index,planned=true){
       return 10*(index)+ index * 4.3 + 8.4;
+    },
+    getCSV: function(fileName){
+        var csv = "Planned Leave,,,Unplanned Leave,,\r\n";
+        csv += "Category,Count,Percentage,Category,Count,Percentage\r\n";
+        var lncnt = Math.max(this.CalendarData.pcounts.length, this.CalendarData.ucounts.length);
+        for(var i=0; i < lncnt;i++){
+          if (!this.CalendarData.pcounts[i]){
+            csv += ",,,";
+          }else{
+            csv += this.CalendarData.pcounts[i].cat + "," + this.CalendarData.pcounts[i].count + ",,"   
+          }
+          if(!this.CalendarData.ucounts[i]){
+            csv += ",,\r\n";
+          }else{
+            csv += this.CalendarData.ucounts[i].cat + "," + this.CalendarData.ucounts[i].count + ",\r\n";
+          }
+        }
+        csv +="\r\n\r\nTotal Planned,"+ this.countDays(this.CalendarData.pcounts)+",100%";
+        csv +=",Total Unplanned,"+ this.countDays(this.CalendarData.ucounts)+",100%,\r\n";
+
+        console.log(csv);
+        const blob = new Blob([csv], {type: 'text/csv'})
+        const e = document.createEvent('MouseEvents'),
+        a = document.createElement('a');
+        a.download = fileName + ".csv";
+        a.href = window.URL.createObjectURL(blob);
+        a.dataset.downloadurl = ['text/csv', a.download, a.href].join(':');
+        e.initEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+        a.dispatchEvent(e);
     },
     getSvg: function(fileName){
       var content = this.$el.firstChild.firstChild.innerHTML;

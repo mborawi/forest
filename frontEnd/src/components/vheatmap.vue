@@ -69,7 +69,7 @@
           <!-- <td class="text-xs-right">{{ props.item.name }}</td> -->
           <td class="text-xs-left">{{ props.item.cat }}</td>
           <td class="text-xs-center">{{ props.item.count }}</td>
-          <td class="text-xs-center">{{ props.item.count / countAll(CalendarData.pcounts, CalendarData.ucounts) | percent }}</td>
+          <td class="text-xs-center">{{ props.item.count / countDays(CalendarData.pcounts) | percent }}</td>
         </template>
       </v-data-table>
     </v-card>
@@ -90,7 +90,7 @@
         <!-- <td class="text-xs-right">{{ props.item.name }}</td> -->
         <td class="text-xs-left">{{ props.item.cat }}</td>
         <td class="text-xs-center">{{ props.item.count }}</td>
-        <td class="text-xs-center">{{ props.item.count / countAll(CalendarData.pcounts, CalendarData.ucounts) | percent }}</td>
+        <td class="text-xs-center">{{ props.item.count / countDays(CalendarData.ucounts) | percent }}</td>
       </template>
     </v-data-table>
   </v-card>

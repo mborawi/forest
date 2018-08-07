@@ -132,7 +132,6 @@
       v-model="showPlanned"
       label="Planned Leaves"
       color="green darken-4"
-      value="red"
       hide-details
     ></v-switch>
     <v-switch
@@ -140,7 +139,6 @@
       v-model="showUnplanned"
       label="Unplanned Leaves"
       color="red darken-4"
-      value="red darken-3"
       hide-details
     ></v-switch>
     </v-flex>
@@ -177,6 +175,8 @@ import numeral from "numeral";
 
 export default {
   data: () => ({
+    showPlanned: true,
+    showUnplanned: true,
     legend: {},
     test: "hello",
     AllDays: [],
@@ -184,8 +184,6 @@ export default {
     heatColor: "#002b53",
     colorRange: null,
     firstSunday: null,
-    showPlanned: true,
-    showUnplanned: true,
     dayNames:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
     monthNames : [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ],
     tableView : false,

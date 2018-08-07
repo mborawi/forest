@@ -321,7 +321,7 @@ export default {
     getOpacity: function(daDate) {
       var m = moment(daDate);
       var kw = m.format("DD-MM");
-      if ( kw in  this.CalendarData.days &&  m.weekday()%6==0){
+      if ( kw in  this.CalendarData.days &&  m.weekday()%6==0 && ( (this.showUnplanned && this.CalendarData.days[kw].name_id==2) || (this.showPlanned && this.CalendarData.days[kw].name_id==1) )){
         return 0.75;
       }
       return 1.0;

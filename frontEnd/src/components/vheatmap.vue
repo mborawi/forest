@@ -226,6 +226,9 @@ export default {
       var m = moment(daDate);
       var kw = m.format("DD-MM");
       if (kw in  this.CalendarData.days){
+        if ((!this.showPlanned && this.CalendarData.days[kw].name_id==1) || (!this.showUnplanned && this.CalendarData.days[kw].name_id==2)){
+            return false;    
+        }
         return true;
       }
       return false;

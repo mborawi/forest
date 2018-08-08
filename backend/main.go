@@ -98,7 +98,7 @@ func listEmployeeDetails(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.Atoi(vars["id"])
 	emps := []models.Employee{}
-	db.Debug().Where("manager_id = ?", id).Find(&emps)
+	db.Where("manager_id = ?", id).Find(&emps)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(emps)
 }
@@ -186,4 +186,6 @@ func listEmployeeLeavesYears(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(results)
 
+}
+func CollectTeamLeavesHandler(w http.ResponseWriter, r *http.Request) {
 }

@@ -103,7 +103,6 @@ CREATE OR REPLACE FUNCTION team_leaves(empId integer, nyrs integer, incMan boole
 	RETURNS TABLE (dom text, pcount bigint, ucount bigint)
     AS $$
     BEGIN
-    q = selelct ___
 
     IF incMan THEN
     	RETURN QUERY SELECT to_char(leave_date, 'dd-mm'),

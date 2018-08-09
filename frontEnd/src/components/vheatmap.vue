@@ -226,8 +226,8 @@ export default {
     { text: 'Percentage', value: '', align:'center', class:'grey lighten-4'  },
     ],
     colors : [
-    '#EC407A',
     '#29B6F6',
+    '#EC407A',
     '#1976D2',
     '#2E7D32',
     '#78909C',

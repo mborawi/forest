@@ -59,7 +59,7 @@
       <v-card color="green lighten-5">
         <v-card-title primary-title>
           <div>
-            <h3 class="green--text text--darken-4">Planned Leave</h3>
+            <h3 class="green--text text--darken-4">Planned Absences</h3>
           </div>
         </v-card-title>
         <v-data-table
@@ -76,7 +76,7 @@
         </template>
         <template slot="footer">
           <td class="text-xs-left">
-            <strong>Unplanned Total:</strong> 
+            <strong>Planned Total:</strong> 
           </td>
           <td class="text-xs-center">
             {{countDays(this.CalendarData.pcounts)}}
@@ -90,7 +90,7 @@
         <v-card color="indigo lighten-5">
           <v-card-title primary-title>
             <div>
-              <h3 class="indigo--text text--darken-4">Unplanned Absences</h3>
+              <h3 class="indigo--text text--darken-4">Unplanned Weekdays</h3>
             </div>
           </v-card-title>
           <v-data-table
@@ -120,7 +120,7 @@
     <v-card color="red lighten-5">
       <v-card-title primary-title>
         <div>
-          <h3 class="red--text text--darken-4">Unplanned Leave</h3>
+          <h3 class="red--text text--darken-4">Unplanned Absences</h3>
         </div>
       </v-card-title>
       <v-data-table

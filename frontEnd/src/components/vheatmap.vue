@@ -74,6 +74,15 @@
           <td class="text-xs-center">{{ props.item.count }}</td>
           <td class="text-xs-center">{{ props.item.count / countDays(CalendarData.pcounts) | percent }}</td>
         </template>
+        <template slot="footer">
+          <td class="text-xs-left">
+            <strong>Unplanned Total:</strong> 
+          </td>
+          <td class="text-xs-center">
+            {{countDays(this.CalendarData.pcounts)}}
+          </td>
+          <td></td>
+        </template>
       </v-data-table>
     </v-card>
   </v-flex>
@@ -93,6 +102,16 @@
           <template slot="items" slot-scope="props">
             <td class="text-xs-left">{{ props.item.day | capitalize }}</td>
             <td class="text-xs-center">{{ props.item.count }}</td>
+            <td class="text-xs-center">{{ props.item.count / countDays(CalendarData.ucounts) | percent }}</td>
+          </template>
+          <template slot="footer">
+            <td class="text-xs-left">
+              <strong>Total:</strong> 
+            </td> 
+            <td class="text-xs-center">
+              {{countDays(this.CalendarData.ucounts)}}
+            </td>
+            <td></td>
           </template>
         </v-data-table>
       </v-card>
@@ -114,6 +133,15 @@
         <td class="text-xs-left">{{ props.item.cat }}</td>
         <td class="text-xs-center">{{ props.item.count }}</td>
         <td class="text-xs-center">{{ props.item.count / countDays(CalendarData.ucounts) | percent }}</td>
+      </template>
+      <template slot="footer">
+        <td class="text-xs-left">
+          <strong>Unplanned Total:</strong> 
+        </td>
+        <td class="text-xs-center">
+          {{countDays(this.CalendarData.ucounts)}}
+        </td>
+        <td></td>
       </template>
     </v-data-table>
   </v-card>
@@ -188,8 +216,9 @@ export default {
     monthNames : [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ],
     tableView : false,
     dowh: [
-    {text: 'Weekday' , value:'day',   align:'left',  class:'grey lighten-4' },
-    {text: 'Absences', value:'count', align:'left', class:'grey lighten-4'}],
+    { text: 'Weekday' , value:'day',   align:'left',  class:'grey lighten-4' },
+    { text: 'Absences', value:'count', align:'left', class:'grey lighten-4'  },
+    { text: '%', value: '', align:'center', class:'grey lighten-4'  }],
     headers:[
     // { text: 'Leave Type', value: 'name' },
     { text: 'Category', value: 'cat', align:'center', class:'grey lighten-4' },
@@ -197,6 +226,7 @@ export default {
     { text: 'Percentage', value: '', align:'center', class:'grey lighten-4'  },
     ],
     colors : [
+    '#EC407A',
     '#00897B',
     '#1976D2',
     '#29B6F6',
@@ -212,7 +242,6 @@ export default {
     '#D4E157',
     '#E0E0E0',
     '#E6EE9C',
-    '#EC407A',
     '#F4511E',
     '#EF5350',
     '#FF6F00',
@@ -256,7 +285,8 @@ export default {
       return 10*(index)+ index * 4.3 + 8.4;
     },
     getCSV: function(fileName){
-      var csv = "Planned Leave,,,Unplanned Leave,,\r\n";
+      var csv = this.CalendarData.title+"\r\n\r\n";
+      csv += "Planned Leave,,,Unplanned Leave,,\r\n";
       csv += "Category,Count,Percentage,Category,Count,Percentage\r\n";
       var lncnt = Math.max(this.CalendarData.pcounts.length, this.CalendarData.ucounts.length);
       var plcnt = this.countDays(this.CalendarData.pcounts);

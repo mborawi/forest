@@ -86,7 +86,10 @@ export default {
     firstSunday: null,
     dayNames:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
     monthNames : [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ],
-    colors : { total:'#0D47A1',unplanned:'#00897B',  planned:'#BA68C8'}
+    colors : { 
+      total:'#0D47A1',
+      unplanned:'#00897B',
+      planned:'#BA68C8'}
   }),
   methods: {
     countDays:function(days){
@@ -129,7 +132,7 @@ export default {
       if( this.viewMode === 'planned' &&  ( kw in  this.plannedDays ) && this.plannedDays[kw] > 0 ){
         return color;
       }
-      if( this.viewMode === 'unplanned' && ( kw in  this.unplannedDays ) && this.unplannedDays >0 ){
+      if( this.viewMode === 'unplanned' && ( kw in  this.unplannedDays ) && this.unplannedDays[kw] >0 ){
         return color;
       }
       if ( this.viewMode === 'total' && ( kw in  this.plannedDays || kw in  this.unplannedDays ) ){

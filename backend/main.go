@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -36,6 +37,7 @@ func main() {
 	router := mux.NewRouter().StrictSlash(false)
 	router.HandleFunc("/api/list/{id:[0-9]+}/{yr:[0-9]+}", listEmployeeLeavesYears)
 	router.HandleFunc("/api/emp/{id:[0-9]+}", listEmployeeDetails)
+	router.HandleFunc("/api/team/{id:[0-9]+}/{yr:[0-9]+}", CollectTeamLeavesHandler)
 	router.HandleFunc("/api/leaves", listleavesHandler)
 	router.HandleFunc("/api/search", SearchHandler)
 	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("../frontEnd/dist/static/"))))
@@ -187,5 +189,62 @@ func listEmployeeLeavesYears(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(results)
 
 }
+
 func CollectTeamLeavesHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, _ := strconv.Atoi(vars["id"])
+	yrs, _ := strconv.Atoi(vars["yr"])
+	isMgrInc, _ := strconv.ParseBool(vars["incMan"])
+
+	emp := models.Employee{}
+	ok := !db.Find(&emp, id).RecordNotFound()
+	if !ok {
+		log.Printf("Count not find user with id: %d \n", id)
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		return
+	}
+
+	res := team_result{}
+	res.PDays = make(map[string]uint)
+	res.UDays = make(map[string]uint)
+	res.Year = time.Now().Year()
+	res.Title = fmt.Sprintf("Team Leaves for %s %s's Direct Reports for last %d as of %d",
+		emp.FirstName, emp.LastName, yrs, res.Year)
+	res.FileTitle = strings.Replace(res.Title, " ", "_", 0)
+	type cc struct {
+		Dom    string
+		Pcount uint
+		Ucount uint
+	}
+	tcs := []cc{}
+	db.Raw("SELECT * FROM team_leaves(?,?,?)", id, yrs, isMgrInc).Scan(&tcs)
+	pmax := tcs[0].Pcount
+	umax := tcs[0].Ucount
+	pmin := pmax
+	umin := umax
+	for _, t := range tcs {
+		log.Println(t)
+		res.PDays[t.Dom] = t.Pcount
+		res.UDays[t.Dom] = t.Ucount
+		res.PTotal += t.Pcount
+		res.UTotal += t.Ucount
+		if pmax < t.Pcount {
+			pmax = t.Pcount
+		}
+		if pmin > t.Pcount {
+			pmin = t.Pcount
+		}
+		if umax < t.Ucount {
+			umax = t.Ucount
+		}
+		if umin > t.Ucount {
+			umin = t.Ucount
+		}
+	}
+	res.PMax = pmax
+	res.PMin = pmin
+	res.UMax = umax
+	res.UMin = umin
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(res)
 }

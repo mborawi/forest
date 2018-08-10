@@ -50,6 +50,9 @@
             <!-- :CalendarData="yearcounts" -->
             <!-- > </vheatmap>  -->
             <!-- {{m.title}} -->
+            <teamHeatMap v-if="!!TeamLeaves" :CalendarData="TeamLeaves"  :LeaveTypes="leaveTypeNames"></teamHeatMap>
+
+
             <vheatmap v-for="m in yearsLeave" :key="m.id" v-bind:data="m" :CalendarData="m"  :LeaveTypes="leaveTypeNames">        </vheatmap>
 
           </v-flex>
@@ -64,7 +67,10 @@
 
 <script>
 import axios from 'axios';
+
 import vheatmap from './components/vheatmap.vue';
+import teamHeatMap from './components/teamHeatMap.vue';
+
 export default {
   data: () => ({
     drawer: false,
@@ -76,6 +82,7 @@ export default {
     yearsLeave : [],
     emps : [],
     leaveTypeNames : [],
+    TeamLeaves : null,
     customFilter (item, queryText, itemText) {
       return true;
     }
@@ -125,9 +132,19 @@ export default {
              console.log(error);
         });
     },
+    getTeam(id){
+        axios.get("api/team/"+ id + "/10")
+        .then((response)  =>  {
+          this.TeamLeaves = response.data;
+          console.log("==----===>>", this.TeamLeaves.year);
+        }, (error)  =>  {
+             console.log(error);
+        });
+    },
     GetEmployee(id){
         this.getReports(id);
         this.getLeaves(id);
+        this.getTeam(id);
     },
     OnChange(){
       var id = this.select;
@@ -156,7 +173,8 @@ export default {
       this.getLeaveTypes();
   },
   components: {
-    'vheatmap': vheatmap
+    'vheatmap': vheatmap,
+    'teamHeatMap': teamHeatMap,
   },
 }
 </script>

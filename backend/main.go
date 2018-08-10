@@ -194,7 +194,6 @@ func CollectTeamLeavesHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.Atoi(vars["id"])
 	yrs, _ := strconv.Atoi(vars["yr"])
-	isMgrInc, _ := strconv.ParseBool(vars["incMan"])
 
 	emp := models.Employee{}
 	ok := !db.Find(&emp, id).RecordNotFound()
@@ -217,13 +216,12 @@ func CollectTeamLeavesHandler(w http.ResponseWriter, r *http.Request) {
 		Ucount uint
 	}
 	tcs := []cc{}
-	db.Raw("SELECT * FROM team_leaves(?,?,?)", id, yrs, isMgrInc).Scan(&tcs)
+	db.Raw("SELECT * FROM team_leaves(?,?,?)", id, yrs, false).Scan(&tcs)
 	pmax := tcs[0].Pcount
 	umax := tcs[0].Ucount
 	pmin := pmax
 	umin := umax
 	for _, t := range tcs {
-		log.Println(t)
 		res.PDays[t.Dom] = t.Pcount
 		res.UDays[t.Dom] = t.Ucount
 		res.PTotal += t.Pcount

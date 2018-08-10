@@ -111,7 +111,8 @@ CREATE OR REPLACE FUNCTION team_leaves(empId integer, nyrs integer, incMan boole
 			FROM employees 
 			INNER JOIN leaves 
 			ON employees.id = leaves.employee_id 
-			WHERE  employees.id=empId or manager_id = empId 
+			WHERE  employees.manager_id = empId 
+			OR employees.id = empId 
 			AND leave_date >= now()-make_interval(years => nyrs)  
 			GROUP BY to_char(leave_date, 'dd-mm')  
 			ORDER BY COUNT(leave_name_id=1 OR NULL) +  COUNT(leave_name_id=2 OR NULL) DESC;
@@ -122,7 +123,7 @@ CREATE OR REPLACE FUNCTION team_leaves(empId integer, nyrs integer, incMan boole
 			FROM employees 
 			INNER JOIN leaves 
 			ON employees.id = leaves.employee_id 
-			WHERE  employees.id=empId  
+			WHERE  employees.manager_id=empId  
 			AND leave_date >= now()-make_interval(years => nyrs)  
 			GROUP BY to_char(leave_date, 'dd-mm')  
 			ORDER BY COUNT(leave_name_id=1 OR NULL) +  COUNT(leave_name_id=2 OR NULL) DESC;

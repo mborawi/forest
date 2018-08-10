@@ -133,6 +133,7 @@ export default {
         });
     },
     getTeam(id){
+      this.TeamLeaves = null;
         axios.get("api/team/"+ id + "/10")
         .then((response)  =>  {
           this.TeamLeaves = response.data;
@@ -142,9 +143,9 @@ export default {
         });
     },
     GetEmployee(id){
-        this.getReports(id);
         this.getLeaves(id);
         this.getTeam(id);
+        this.getReports(id);
     },
     OnChange(){
       var id = this.select;

@@ -126,10 +126,10 @@ export default {
       var z = 0.0;
       var color = this.colors[this.viewMode];
 
-      if( this.viewMode === 'planned' &&  ( kw in  this.plannedDays )  ){
+      if( this.viewMode === 'planned' &&  ( kw in  this.plannedDays ) && this.plannedDays[kw] > 0 ){
         return color;
       }
-      if( this.viewMode === 'unplanned' && ( kw in  this.unplannedDays ) ){
+      if( this.viewMode === 'unplanned' && ( kw in  this.unplannedDays ) && this.unplannedDays >0 ){
         return color;
       }
       if ( this.viewMode === 'total' && ( kw in  this.plannedDays || kw in  this.unplannedDays ) ){

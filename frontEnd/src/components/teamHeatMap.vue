@@ -1,6 +1,6 @@
 <template>
   <v-container fluid>
-    <v-card>
+    <v-card v-if="CalendarData.ptotal + CalendarData.utotal > 0">
      <v-card-text >
       <!-- <div class="text-xs-center"> -->
         <h2 class="text-xs-center">{{CalendarData.title}}</h2>
@@ -25,7 +25,7 @@
               text-anchor="end"
               :width="cSize" :height="cSize" 
               :x="getX(d)" :y="getY(d)" :fill="getColor(d)" :fill-opacity="getOpacity(d)">
-              <!-- <title v-if="isLeaveDay(d)">{{getHoverText(d)}}</title> -->
+              <title v-if="isLeaveDay(d)">{{getHoverText(d)}}</title>
             </rect>
 
             <path v-for="m in 12" :d="getPath(m)"
@@ -51,11 +51,11 @@
     </v-layout>
   </v-card-media>
   <!-- <v-card-actions> -->
-    <v-flex xs6 offset-xs1>
-      <v-radio-group v-model="viewMode" row>
-        <v-radio label="All Absences" value="total" color="blue darken-3"></v-radio>
-        <v-radio label="Planned Absences" value="planned" color="green darken-3"></v-radio>
-        <v-radio label="Unplanned Absences" value="unplanned" color="red darken-2"></v-radio>
+    <v-flex xs2 offset-xs10>
+      <v-radio-group v-model="viewMode" column>
+        <v-radio label="All" value="total" color="blue darken-3"></v-radio>
+        <v-radio label="Planned" value="planned" color="green darken-3"></v-radio>
+        <v-radio label="Unplanned" value="unplanned" color="red darken-2"></v-radio>
       </v-radio-group>
     </v-flex>
   <!-- </v-card-actions> -->
@@ -88,8 +88,8 @@ export default {
     monthNames : [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ],
     colors : { 
       total:'#0D47A1',
-      unplanned:'#00897B',
-      planned:'#BA68C8'}
+      unplanned:'#D32F2F', //'#BA68C8',
+      planned:'#1B5E20'}
   }),
   methods: {
     countDays:function(days){
@@ -101,12 +101,6 @@ export default {
     },
     countAll: function(upls , pls){
       return this.countDays(upls) + this.countDays(pls);
-    },
-    getHoverText: function(daDate){
-      var m = moment(daDate);
-      var dt = m.format("DD-MMM-YYYY") ;
-      var kw = m.format("DD-MM");
-      return dt+": "+this.LeaveTypes[this.CalendarData.days[kw].type_id - 1].name;
     },
     getLegendx: function(index,planned=true){
       return 10*(index)+5;
@@ -122,6 +116,64 @@ export default {
     },
     getY: function(daDate){
       return this.cSize * daDate.getDay();
+    },
+    isLeaveDay: function(daDate){
+      var m = moment(daDate);
+      var kw = m.format("DD-MM");
+      switch(this.viewMode){
+        case "planned":
+          return ( kw in this.plannedDays  && this.plannedDays[kw] > 0 );
+          break;
+        case "unplanned":
+          return (  kw in  this.unplannedDays  && this.unplannedDays[kw] >0 );
+          break;
+        case "total":
+        default:
+          return ( kw in this.plannedDays  && this.plannedDays[kw] > 0 ) || (  kw in  this.unplannedDays  && this.unplannedDays[kw] >0 );
+          break;
+      }
+      
+    },
+    getHoverText: function(daDate){
+      var m = moment(daDate);
+      var kw = m.format("DD-MM");
+      var count = 0;
+      var max = 0;
+      var min = 0;
+      switch(this.viewMode){
+        case "planned":
+          count = this.plannedDays[kw];
+          min = this.CalendarData.pmin;
+          max = this.CalendarData.pmax;
+          break;
+        case "unplanned":
+          count = this.unplannedDays[kw];
+          min = this.CalendarData.umin;
+          max = this.CalendarData.umax;
+          break;
+        case "total":
+        default:
+        if (this.unplannedDays[kw]==undefined && this.plannedDays[kw]==undefined) {
+          count = 0;
+          min = 0;
+          max = 0;
+        } else if (this.plannedDays[kw]==undefined){
+          count = this.unplannedDays[kw];
+          min = this.CalendarData.umin;
+          max = this.CalendarData.umax;
+        }else if(this.unplannedDays[kw]==undefined){
+          count = this.plannedDays[kw];
+          min = this.CalendarData.pmin;
+          max = this.CalendarData.pmax;
+        }else{
+          count = this.plannedDays[kw] + this.unplannedDays[kw];
+          min = Math.min(this.CalendarData.umin, this.CalendarData.pmin);
+          max = this.CalendarData.umax + this.CalendarData.pmax;
+          break;
+        }
+          
+      }
+      return "Count: " + count + ", Range: [" + min + ".." + max + "]" ;
     },
     getColor: function(daDate) {
       var m = moment(daDate);
@@ -178,7 +230,8 @@ export default {
       if (count == 0){
         return 1.0;
       }
-      return (count - min)/(max - min);
+      var base = 0.22;
+      return (count - min)/(max - min) * (1 - base) + base  ;
     },
     getTranslation: function(i){
       return "translate("+ (8+ i* 4.3 * this.cSize) + ",-3)";

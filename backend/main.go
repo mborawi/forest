@@ -3,17 +3,17 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
-	"net/http"
-	"strconv"
-	"strings"
-	"time"
-
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	_ "github.com/lib/pq"
 	"github.com/mborawi/forest/backend/config"
 	"github.com/mborawi/forest/backend/models"
+	"log"
+	"math"
+	"net/http"
+	"strconv"
+	"strings"
+	"time"
 )
 
 var db *gorm.DB
@@ -169,8 +169,8 @@ func listEmployeeLeavesYears(w http.ResponseWriter, r *http.Request) {
 			Order("leave_date").
 			Find(&leaves)
 		res.Total = len(leaves)
-		res.Title = fmt.Sprintf("%s %s leaves in %d", emp.FirstName, emp.LastName, st.Year())
-		res.FileTitle = fmt.Sprintf("Leaves_%s_%s_%d", emp.FirstName, emp.LastName, st.Year())
+		res.Title = fmt.Sprintf("%s %s absences in %d", emp.FirstName, emp.LastName, st.Year())
+		res.FileTitle = fmt.Sprintf("Absences%s_%s_%d", emp.FirstName, emp.LastName, st.Year())
 		res.Year = st.Year()
 		for _, l := range leaves {
 			res.Days[l.LeaveDate.Format("02-01")] = LeaveDay{
@@ -207,7 +207,7 @@ func CollectTeamLeavesHandler(w http.ResponseWriter, r *http.Request) {
 	res.PDays = make(map[string]uint)
 	res.UDays = make(map[string]uint)
 	res.Year = time.Now().Year()
-	res.Title = fmt.Sprintf("Team Leaves for %s %s's Direct Reports for last %d as of %d",
+	res.Title = fmt.Sprintf("%s %s's Direct Reports Absences for %d years as of %d",
 		emp.FirstName, emp.LastName, yrs, res.Year)
 	res.FileTitle = strings.Replace(res.Title, " ", "_", 0)
 	type cc struct {
@@ -216,28 +216,34 @@ func CollectTeamLeavesHandler(w http.ResponseWriter, r *http.Request) {
 		Ucount uint
 	}
 	tcs := []cc{}
-	db.Raw("SELECT * FROM team_leaves(?,?,?)", id, yrs, false).Scan(&tcs)
-	pmax := tcs[0].Pcount
-	umax := tcs[0].Ucount
-	pmin := pmax
-	umin := umax
+	db.Debug().Raw("SELECT * FROM team_leaves(?,?,?)", id, yrs, false).Scan(&tcs)
+	pmax := uint(0)
+	umax := uint(0)
+	pmin := uint(math.MaxUint32)
+	umin := uint(math.MaxUint32)
 	for _, t := range tcs {
-		res.PDays[t.Dom] = t.Pcount
-		res.UDays[t.Dom] = t.Ucount
-		res.PTotal += t.Pcount
-		res.UTotal += t.Ucount
-		if pmax < t.Pcount {
-			pmax = t.Pcount
+		if t.Pcount != 0 {
+			res.PDays[t.Dom] = t.Pcount
+			res.PTotal += t.Pcount
+			if pmax < t.Pcount {
+				pmax = t.Pcount
+			}
+			if pmin > t.Pcount {
+				pmin = t.Pcount
+			}
 		}
-		if pmin > t.Pcount {
-			pmin = t.Pcount
+		if t.Ucount != 0 {
+			res.UDays[t.Dom] = t.Ucount
+			res.UTotal += t.Ucount
+
+			if umax < t.Ucount {
+				umax = t.Ucount
+			}
+			if umin > t.Ucount {
+				umin = t.Ucount
+			}
 		}
-		if umax < t.Ucount {
-			umax = t.Ucount
-		}
-		if umin > t.Ucount {
-			umin = t.Ucount
-		}
+
 	}
 	res.PMax = pmax
 	res.PMin = pmin

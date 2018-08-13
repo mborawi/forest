@@ -34,7 +34,7 @@ type YrLeaves struct {
 type DayCounts struct {
 	DOW   uint   `json:"-"`
 	Day   string `json:"day"`
-	Count uint   `json:"count"`
+	Count uint   `json:"count,omitempty"`
 }
 
 type team_result struct {

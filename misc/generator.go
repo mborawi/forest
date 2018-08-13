@@ -43,10 +43,11 @@ func createFakeEmployees(N int) {
 }
 
 func createRanges(N, stYr, fnYr int) {
-	cats := []string{"Carers",
+	cats := []string{
+		"Carers",
 		"Annual",
 		"Long Service",
-		"Sick/Personal",
+		"Sick",
 		"Leave without pay",
 		"Wellbeing",
 		"Purchased",

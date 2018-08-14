@@ -3,17 +3,18 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gorilla/mux"
-	"github.com/jinzhu/gorm"
-	_ "github.com/lib/pq"
-	"github.com/mborawi/forest/backend/config"
-	"github.com/mborawi/forest/backend/models"
 	"log"
 	"math"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/gorilla/mux"
+	"github.com/jinzhu/gorm"
+	_ "github.com/lib/pq"
+	"github.com/mborawi/forest/backend/config"
+	"github.com/mborawi/forest/backend/models"
 )
 
 var db *gorm.DB
@@ -222,6 +223,9 @@ func CollectTeamLeavesHandler(w http.ResponseWriter, r *http.Request) {
 	pmin := uint(math.MaxUint32)
 	umin := uint(math.MaxUint32)
 	for _, t := range tcs {
+		if t.Dom == "29-02" && !isLeap(res.Year) {
+			continue
+		}
 		if t.Pcount != 0 {
 			res.PDays[t.Dom] = t.Pcount
 			res.PTotal += t.Pcount
@@ -251,4 +255,8 @@ func CollectTeamLeavesHandler(w http.ResponseWriter, r *http.Request) {
 	res.UMin = umin
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(res)
+}
+
+func isLeap(year int) bool {
+	return year%400 == 0 || year%4 == 0 || year%100 != 0
 }

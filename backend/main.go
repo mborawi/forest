@@ -117,7 +117,6 @@ func listEmployeeLeavesYears(w http.ResponseWriter, r *http.Request) {
 	var leaves []models.Leave
 	emp := models.Employee{}
 	db.Find(&emp, id)
-	fmt.Println(yrs, emp.StartDate.Year())
 	if emp.StartDate.Year() > thisyear-yrs {
 		yrs = thisyear - emp.StartDate.Year()
 	}
@@ -203,8 +202,22 @@ func CollectTeamLeavesHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 		return
 	}
-
 	res := team_result{}
+
+	count := 0
+	db.
+		Model(&models.Employee{}).
+		Where("manager_id = ?", emp.ID).
+		// Where("ManagerID = ?", emp.ID).
+		Count(&count)
+
+	if count == 0 {
+		log.Println("Found no direct reports for ", emp.ID, count)
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(res)
+		return
+	}
+
 	res.PDays = make(map[string]uint)
 	res.UDays = make(map[string]uint)
 	res.Year = time.Now().Year()
@@ -217,7 +230,7 @@ func CollectTeamLeavesHandler(w http.ResponseWriter, r *http.Request) {
 		Ucount uint
 	}
 	tcs := []cc{}
-	db.Debug().Raw("SELECT * FROM team_leaves(?,?,?)", id, yrs, false).Scan(&tcs)
+	db.Raw("SELECT * FROM team_leaves(?,?,?)", id, yrs, false).Scan(&tcs)
 	pmax := uint(0)
 	umax := uint(0)
 	pmin := uint(math.MaxUint32)
@@ -253,6 +266,24 @@ func CollectTeamLeavesHandler(w http.ResponseWriter, r *http.Request) {
 	res.PMin = pmin
 	res.UMax = umax
 	res.UMin = umin
+
+	st := time.Date(res.Year-10, 1, 1, 0, 0, 0, 0, time.UTC)
+	ft := time.Date(res.Year+1, 1, 1, 0, 0, 0, 0, time.UTC)
+	dows := []DayCounts{}
+	db.
+		Table("leaves").
+		Joins("inner join employees on leaves.employee_id = employees.id").
+		Select("EXTRACT(dow FROM leave_date) as DOW, to_char(leave_date,'day') as Day, count(leave_date) as Count").
+		Where("leave_name_id = 2").
+		Where("employees.manager_id = ?", id).
+		Where("leave_date >= ?", st).
+		Where("leave_date < ?", ft).
+		Where("EXTRACT(dow FROM leave_date) IN (1,2,3,4,5)").
+		Group("EXTRACT(dow FROM leave_date),to_char(leave_date,'day')").
+		Order("Count DESC, DOW").
+		Scan(&dows)
+	res.Dows = dows
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(res)
 }

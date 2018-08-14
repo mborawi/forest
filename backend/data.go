@@ -49,4 +49,5 @@ type team_result struct {
 	UMin      uint            `json:"umin"`
 	PTotal    uint            `json:"ptotal"`
 	UTotal    uint            `json:"utotal"`
+	Dows      []DayCounts     `json:"dows"`
 }

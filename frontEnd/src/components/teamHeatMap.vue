@@ -6,7 +6,7 @@
         <h2 class="text-xs-center">{{CalendarData.title}}</h2>
         <!-- </div> -->
       </v-card-text>
-      <v-card-media>
+      <v-card-media v-if="!tableView">
         <v-layout row>
           <v-flex class="calender-map">
             <svg viewBox="0 0 700 135" xmlns="http://www.w3.org/2000/svg" v-if="CalendarData.year">
@@ -50,15 +50,76 @@
       </v-flex>
     </v-layout>
   </v-card-media>
-  <!-- <v-card-actions> -->
-    <v-flex xs2 offset-xs10>
+    <v-card-text>
+      <v-layout align-top justify-space-around v-if="tableView"   class="tr pop-up-message grey lighten-3">
+      <v-flex xs4 class="my-3">
+        <v-card color="green lighten-5">
+          <v-card-title primary-title>
+            <div>
+              <h3 class="green--text text--darken-4">Planned Absences</h3>
+            </div>
+          </v-card-title>
+      </v-card>
+    </v-flex>
+     <v-flex xs3 class="my-3"> 
+          <v-card color="indigo lighten-5">
+            <v-card-title primary-title>
+              <div>
+                <h3 class="indigo--text text--darken-4">Unplanned Weekdays</h3>
+              </div>
+            </v-card-title>
+            <v-data-table
+            :headers="dowh"
+            :items="CalendarData.dows"
+            disable-initial-sort
+            hide-actions
+            class="elevation-1 pa-2">
+            <template slot="items" slot-scope="props">
+              <td class="text-xs-left">{{ props.item.day | capitalize }}</td>
+              <td class="text-xs-center">{{ props.item.count }}</td>
+              <td class="text-xs-center">{{ props.item.count / countDays(CalendarData.dows) | percent}}</td>
+            </template>
+            <template slot="footer">
+              <td class="text-xs-left">
+                <strong>Total:</strong> 
+              </td> 
+              <td class="text-xs-center">
+                {{ countDays(CalendarData.dows) }}
+              </td>
+              <td>100%</td>
+            </template>
+          </v-data-table>
+        </v-card>
+      </v-flex> 
+    <v-flex xs4 class="my-3">
+      <v-card color="red lighten-5">
+        <v-card-title primary-title>
+          <div>
+            <h3 class="red--text text--darken-4">Unplanned Absences</h3>
+          </div>
+        </v-card-title>
+    </v-card>
+  </v-flex> 
+  </v-layout>
+  </v-card-text>
+  <v-card-actions>
+  <v-btn color="pink darken-4" flat v-on:click="flipView()" v-if="!tableView" >
+    <v-icon left>table_chart</v-icon>
+    Statistics
+  </v-btn>
+  <v-btn color="info" flat v-on:click="flipView()" v-if="tableView" >
+    <v-icon left dark>insert_chart_outlined</v-icon>
+    Calendar
+  </v-btn>
+
+    <v-flex xs2 offset-xs9 v-if="!tableView">
       <v-radio-group v-model="viewMode" column>
         <v-radio label="All" value="total" color="blue darken-3"></v-radio>
         <v-radio label="Planned" value="planned" color="green darken-3"></v-radio>
         <v-radio label="Unplanned" value="unplanned" color="red darken-2"></v-radio>
       </v-radio-group>
     </v-flex>
-  <!-- </v-card-actions> -->
+  </v-card-actions>
   </v-card>
 </v-flex> 
 </v-layout>
@@ -77,8 +138,13 @@ export default {
     showUnplanned: true,
     legend: {},
     test: "hello",
+    dowh: [
+    { text: 'Weekday' , value:'day',   align:'left',  class:'grey lighten-4' },
+    { text: 'Absences', value:'count', align:'left', class:'grey lighten-4'  },
+    { text: '%', value: '', align:'center', class:'grey lighten-4'  }],
     plannedDays:{},
     unplannedDays:{},
+    tableView : false,
     viewMode: "unplanned", // "planned","unplanned","total" 
     AllDays: [],
 
@@ -92,6 +158,9 @@ export default {
       planned:'#1B5E20'}
   }),
   methods: {
+    flipView: function(){
+      this.tableView = !this.tableView;
+    },
     countDays:function(days){
       var dcount = 0;
       for (var i = 0; i< days.length; i++){
@@ -272,7 +341,12 @@ export default {
     this.unplannedDays = this.CalendarData.udays;
     
   },
-  props:['CalendarData', 'LeaveTypes']
+  props:['CalendarData', 'LeaveTypes'],
+  filters: {
+    percent: function (value) {
+      return numeral(value).format("0.00%"); 
+    }
+  }
 }
 </script>
 

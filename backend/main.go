@@ -258,5 +258,5 @@ func CollectTeamLeavesHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func isLeap(year int) bool {
-	return year%400 == 0 || year%4 == 0 || year%100 != 0
+	return year%400 == 0 || year%4 == 0 && year%100 != 0
 }

@@ -79,7 +79,7 @@ export default {
     test: "hello",
     plannedDays:{},
     unplannedDays:{},
-    viewMode: "total", // "planned","unplanned","total" 
+    viewMode: "unplanned", // "planned","unplanned","total" 
     AllDays: [],
 
     cSize :12,
@@ -137,6 +137,7 @@ export default {
     getHoverText: function(daDate){
       var m = moment(daDate);
       var kw = m.format("DD-MM");
+      var dt = m.format("DD-MMM-YYYY") ;
       var count = 0;
       var max = 0;
       var min = 0;
@@ -173,7 +174,7 @@ export default {
         }
           
       }
-      return "Count: " + count + ", Range: [" + min + ".." + max + "]" ;
+      return dt+": " + count + " absences, range: [" + min + ".." + max + "]" ;
     },
     getColor: function(daDate) {
       var m = moment(daDate);

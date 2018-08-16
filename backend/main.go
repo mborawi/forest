@@ -117,6 +117,7 @@ func listEmployeeLeavesYears(w http.ResponseWriter, r *http.Request) {
 	var leaves []models.Leave
 	emp := models.Employee{}
 	db.Find(&emp, id)
+	log.Println("Listing Results for:", emp.FullName)
 	if emp.StartDate.Year() > thisyear-yrs {
 		yrs = thisyear - emp.StartDate.Year()
 	}

@@ -216,14 +216,14 @@ export default {
     monthNames : [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ],
     tableView : false,
     dowh: [
-    { text: 'Weekday' , value:'day',   align:'left',  class:'grey lighten-4' },
-    { text: 'Absences', value:'count', align:'left', class:'grey lighten-4'  },
-    { text: '%', value: '', align:'center', class:'grey lighten-4'  }],
+    { text: 'Weekday' , value:'day',   align:'left',  class:'grey lighten-4', sortable: false },
+    { text: 'Absences', value:'count', align:'left', class:'grey lighten-4', sortable: false  },
+    { text: '%', value: '', align:'center', class:'grey lighten-4' , sortable: false }],
     headers:[
     // { text: 'Leave Type', value: 'name' },
-    { text: 'Category', value: 'cat', align:'center', class:'grey lighten-4' },
-    { text: 'Count', value: 'count', align:'center', class:'grey lighten-4'  },
-    { text: 'Percentage', value: '', align:'center', class:'grey lighten-4'  },
+    { text: 'Category', value: 'cat', align:'center', class:'grey lighten-4', sortable: false },
+    { text: 'Count', value: 'count', align:'center', class:'grey lighten-4' , sortable: false },
+    { text: 'Percentage', value: '', align:'center', class:'grey lighten-4', sortable: false  },
     ],
     colors : [
     '#29B6F6',

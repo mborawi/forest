@@ -134,7 +134,7 @@ export default {
     },
     getTeam(id){
       this.TeamLeaves = null;
-        axios.get("api/team/"+ id + "/10")
+        axios.get("api/team/"+ id + "/5")
         .then((response)  =>  {
           this.TeamLeaves = response.data;
           console.log("==----===>>", this.TeamLeaves.year);

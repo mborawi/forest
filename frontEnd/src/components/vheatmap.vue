@@ -81,7 +81,7 @@
           <td class="text-xs-center">
             {{countDays(this.CalendarData.pcounts)}}
           </td>
-          <td></td>
+          <td>100.0%</td>
         </template>
       </v-data-table>
     </v-card>
@@ -141,7 +141,7 @@
         <td class="text-xs-center">
           {{countDays(this.CalendarData.ucounts)}}
         </td>
-        <td></td>
+        <td>100.0%</td>
       </template>
     </v-data-table>
   </v-card>

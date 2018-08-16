@@ -59,6 +59,28 @@
               <h3 class="green--text text--darken-4">Planned Absences</h3>
             </div>
           </v-card-title>
+            <v-data-table
+            :headers="headers"
+            :items="CalendarData.pcounts"
+            hide-actions
+            class="elevation-1 pa-2"
+            >
+            <template slot="items" slot-scope="props">
+              <!-- <td class="text-xs-right">{{ props.item.name }}</td> -->
+              <td class="text-xs-left">{{ props.item.cat }}</td>
+              <td class="text-xs-center">{{ props.item.count }}</td>
+              <td class="text-xs-center">{{ props.item.count / countDays(CalendarData.pcounts) | percent }}</td>
+            </template>
+            <template slot="footer">
+              <td class="text-xs-left">
+                <strong>Planned Total:</strong> 
+              </td>
+              <td class="text-xs-center">
+                {{countDays(this.CalendarData.pcounts)}}
+              </td>
+              <td>100.0%</td>
+            </template>
+          </v-data-table>
       </v-card>
     </v-flex>
      <v-flex xs3 class="my-3"> 
@@ -98,6 +120,27 @@
             <h3 class="red--text text--darken-4">Unplanned Absences</h3>
           </div>
         </v-card-title>
+          <v-data-table
+          :headers="headers"
+          :items="CalendarData.ucounts"
+          hide-actions
+          class="elevation-1 pa-2">
+          <template slot="items" slot-scope="props">
+            <!-- <td class="text-xs-right">{{ props.item.name }}</td> -->
+            <td class="text-xs-left">{{ props.item.cat }}</td>
+            <td class="text-xs-center">{{ props.item.count }}</td>
+            <td class="text-xs-center">{{ props.item.count / countDays(CalendarData.ucounts) | percent }}</td>
+          </template>
+          <template slot="footer">
+            <td class="text-xs-left">
+              <strong>Unplanned Total:</strong> 
+            </td>
+            <td class="text-xs-center">
+              {{countDays(this.CalendarData.ucounts)}}
+            </td>
+            <td>100.0%</td>
+          </template>
+        </v-data-table>
     </v-card>
   </v-flex> 
   </v-layout>
@@ -138,6 +181,11 @@ export default {
     showUnplanned: true,
     legend: {},
     test: "hello",
+    headers:[
+    { text: 'Category', value: 'cat', align:'center', class:'grey lighten-4' },
+    { text: 'Count', value: 'count', align:'center', class:'grey lighten-4'  },
+    { text: 'Percentage', value: '', align:'center', class:'grey lighten-4'  },
+    ],
     dowh: [
     { text: 'Weekday' , value:'day',   align:'left',  class:'grey lighten-4' },
     { text: 'Absences', value:'count', align:'left', class:'grey lighten-4'  },
@@ -345,6 +393,11 @@ export default {
   filters: {
     percent: function (value) {
       return numeral(value).format("0.00%"); 
+    },
+    capitalize: function (value) {
+    if (!value) return ''
+    value = value.toString()
+    return value.charAt(0).toUpperCase() + value.slice(1)
     }
   }
 }

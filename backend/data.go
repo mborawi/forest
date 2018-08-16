@@ -19,8 +19,8 @@ type result struct {
 }
 
 type LeaveDay struct {
-	Count     int    `json:"count"`
 	NameID    uint   `json:"name_id"`
+	Count     int    `json:"count"`
 	CatId     uint   `json:"cat_id"`
 	CatName   string `json:"cat,omitempty"`
 	LeaveName string `json:"name,omitempty"`
@@ -50,4 +50,6 @@ type team_result struct {
 	PTotal    uint            `json:"ptotal"`
 	UTotal    uint            `json:"utotal"`
 	Dows      []DayCounts     `json:"dows"`
+	PlCounts  []LeaveDay      `json:"pcounts"`
+	UplCounts []LeaveDay      `json:"ucounts"`
 }

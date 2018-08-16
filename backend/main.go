@@ -198,7 +198,7 @@ func CollectTeamLeavesHandler(w http.ResponseWriter, r *http.Request) {
 	emp := models.Employee{}
 	ok := !db.Find(&emp, id).RecordNotFound()
 	if !ok {
-		log.Printf("Count not find user with id: %d \n", id)
+		// log.Printf("Count not find user with id: %d \n", id)
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 		return
 	}
@@ -212,7 +212,6 @@ func CollectTeamLeavesHandler(w http.ResponseWriter, r *http.Request) {
 		Count(&count)
 
 	if count == 0 {
-		log.Println("Found no direct reports for ", emp.ID, count)
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(res)
 		return
@@ -283,6 +282,28 @@ func CollectTeamLeavesHandler(w http.ResponseWriter, r *http.Request) {
 		Order("Count DESC, DOW").
 		Scan(&dows)
 	res.Dows = dows
+
+	plds := []LeaveDay{}
+	uplds := []LeaveDay{}
+	q := db.
+		Table("leaves").
+		Select(`leave_names.name as leave_name,
+				leave_category_id as cat_id, count(leaves.id) as count,
+				leave_categories.name as cat_name`).
+		Joins("inner join leave_categories on leave_category_id = leave_categories.id").
+		Joins("inner join leave_names on leave_name_id = leave_names.id").
+		Joins("inner join employees on leaves.employee_id = employees.id").
+		Where("employees.manager_id = ?", id).
+		Where("leave_date >= ?", st).
+		Where("leave_date < ?", ft).
+		Where("EXTRACT(dow FROM leave_date) IN (1,2,3,4,5)").
+		Group("leave_category_id, leave_names.name,leave_categories.name").
+		Order("count DESC, leave_categories.name")
+
+	q.Where("leave_names.id = 1").Scan(&plds)
+	q.Where("leave_names.id = 2").Scan(&uplds)
+	res.PlCounts = plds
+	res.UplCounts = uplds
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(res)

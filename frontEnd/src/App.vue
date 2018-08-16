@@ -122,7 +122,7 @@ export default {
     getLeaves(id){
       this.loading = true;
       this.yearsLeave = [];
-      axios.get("api/list/"+ id + "/10")
+      axios.get("api/list/"+ id + "/5")
         .then((response)  =>  {
           this.items =[];
           this.search = "";

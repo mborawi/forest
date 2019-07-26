@@ -1,0 +1,8 @@
+[Database]
+USERNAME=""
+PASSWORD=""
+PORT="5432"
+DBNAME=""
+
+[Server]
+PORT=":8088"

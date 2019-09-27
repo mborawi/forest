@@ -35,12 +35,11 @@ func main() {
 		log.Fatalln("failed to connect database", err)
 	}
 	defer db.Close()
-	router := mux.NewRouter().StrictSlash(false)
-	router.HandleFunc("/api/list/{id:[0-9]+}/{yr:[0-9]+}", listEmployeeLeavesYears)
-	router.HandleFunc("/api/emp/{id:[0-9]+}", listEmployeeDetails)
-	router.HandleFunc("/api/team/{id:[0-9]+}/{yr:[0-9]+}", CollectTeamLeavesHandler)
-	router.HandleFunc("/api/leaves", listleavesHandler)
-	router.HandleFunc("/api/search", SearchHandler)
+	router := mux.NewRouter().StrictSlash(true)
+	router.HandleFunc("/api/list/branches", listbranchesHandler)
+	router.HandleFunc("/api/leaves/list", listleavesHandler)
+	router.HandleFunc("/api/leaves/{year:[0-9]+}/", listleavesHandler)
+
 	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("../frontEnd/dist/static/"))))
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { http.ServeFile(w, r, "../frontEnd/dist/index.html") })
 	router.NotFoundHandler = http.HandlerFunc(notFound)
@@ -52,41 +51,6 @@ func notFound(w http.ResponseWriter, r *http.Request) {
 	log.Println(r.URL)
 	log.Println("Flux Reactor not ready doc!...")
 }
-func SearchHandler(w http.ResponseWriter, r *http.Request) {
-	q := r.URL.Query().Get("query")
-	if len(q) < 3 {
-		http.Error(w, "Query was not found", http.StatusNotAcceptable)
-		return
-	}
-	// db.
-	// 	Where("first_name ILIKE ?", query).
-	// 	Or("last_name ILIKE ?", query).
-	// 	Limit(20).
-	// 	Find(&emps)
-	type suggestion struct {
-		Text  string `json:"text"`
-		Value int    `json:"value"`
-	}
-	suggestions := []suggestion{}
-	rs, err := db.
-		// Debug().
-		Raw("SELECT id, full_name FROM employees ORDER BY similarity(full_name, ?) DESC LIMIT ?", q, 20).
-		Rows()
-	if err != nil {
-		log.Fatalln(err)
-		http.Error(w, "Query failed", http.StatusNotAcceptable)
-		return
-	}
-	var n string
-	var id int
-	for rs.Next() {
-		rs.Scan(&id, &n)
-		suggestions = append(suggestions, suggestion{Text: n, Value: id})
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(suggestions)
-}
 
 func listleavesHandler(w http.ResponseWriter, r *http.Request) {
 	lvs := []models.LeaveType{}
@@ -96,14 +60,13 @@ func listleavesHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(lvs)
 }
-
-func listEmployeeDetails(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id, _ := strconv.Atoi(vars["id"])
-	emps := []models.Employee{}
-	db.Where("manager_id = ?", id).Find(&emps)
+func listbranchesHandler(w http.ResponseWriter, r *http.Request) {
+	brs := []models.Branch{}
+	db.
+		Order("id").
+		Find(&brs)
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(emps)
+	json.NewEncoder(w).Encode(brs)
 }
 
 func listEmployeeLeavesYears(w http.ResponseWriter, r *http.Request) {
@@ -117,7 +80,6 @@ func listEmployeeLeavesYears(w http.ResponseWriter, r *http.Request) {
 	var leaves []models.Leave
 	emp := models.Employee{}
 	db.Find(&emp, id)
-	log.Println("Listing Results for:", emp.FullName)
 	if emp.StartDate.Year() > thisyear-yrs {
 		yrs = thisyear - emp.StartDate.Year()
 	}

@@ -48,6 +48,13 @@ DROP TABLE IF EXISTS  leave_names CASCADE;
  	created_at timestamp DEFAULT CURRENT_TIMESTAMP
 );
 
+DROP TABLE IF EXISTS branches CASCADE;
+ create table branches(
+ 	id SERIAL PRIMARY KEY,
+	name VARCHAR(50),
+ 	created_at timestamp DEFAULT CURRENT_TIMESTAMP
+);
+
 DROP TABLE IF EXISTS leave_categories CASCADE;
  create table leave_categories(
  	id SERIAL PRIMARY KEY,

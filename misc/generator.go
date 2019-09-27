@@ -91,7 +91,7 @@ func createRanges(N, stYr, fnYr int) {
 }
 
 func main() {
-	NumberOfEmployees := 20000
+	NumberOfEmployees := 2000
 	StartYear := 2008
 	FinishYear := 2018
 	rand.Seed(time.Now().Unix())

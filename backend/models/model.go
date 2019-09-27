@@ -9,7 +9,6 @@ type Employee struct {
 	CreatedAt time.Time `json:"created_at"`
 	FirstName string    `json:"-"`
 	LastName  string    `json:"-"`
-	FullName  string    `json:"name"`
 	Email     string    `json:"email"`
 	Phone     string    `json:"phone"`
 	JobTitle  string    `json:"title"`
@@ -57,6 +56,12 @@ type LeaveCategory struct {
 }
 
 type LeaveType struct {
+	ID        uint      `gorm:"primary_key" json:"id"`
+	CreatedAt time.Time `json:"-"`
+	Name      string    `gorm:"size:40" json:"name"`
+}
+
+type Branch struct {
 	ID        uint      `gorm:"primary_key" json:"id"`
 	CreatedAt time.Time `json:"-"`
 	Name      string    `gorm:"size:40" json:"name"`

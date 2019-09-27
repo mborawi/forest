@@ -13,7 +13,3 @@
 + Add week availaibily beside or underneath month availability
 + remove stats/ tables and extra calendars
 + remove radion buttons
-
-
-
-

@@ -5,17 +5,17 @@ import (
 )
 
 type Employee struct {
-	ID        uint      `gorm:"primary_key" json:"id"`
-	CreatedAt time.Time `json:"created_at"`
-	FirstName string    `json:"-"`
-	LastName  string    `json:"-"`
-	Email     string    `json:"email"`
-	Phone     string    `json:"phone"`
-	JobTitle  string    `json:"title"`
-	ManagerID uint      `json:"manager_id"`
-	BranchID  uint      `json:"-"`
-	StartDate time.Time `json:"start_date"`
-	Leaves    []Leave   `json:"-"`
+	ID           uint      `gorm:"primary_key" json:"id"`
+	CreatedAt    time.Time `json:"created_at"`
+	FirstName    string    `json:"-"`
+	LastName     string    `json:"-"`
+	Email        string    `json:"email"`
+	Phone        string    `json:"phone"`
+	JobTitle     string    `json:"title"`
+	ManagerID    uint      `json:"manager_id"`
+	DepartmentID uint      `json:"dep_id"`
+	StartDate    time.Time `json:"start_date"`
+	Leaves       []Leave   `json:"-"`
 }
 
 type Leave struct {
@@ -62,7 +62,16 @@ type LeaveType struct {
 }
 
 type Branch struct {
+	ID          uint         `gorm:"primary_key" json:"id"`
+	CreatedAt   time.Time    `json:"-"`
+	Name        string       `gorm:"size:40" json:"name"`
+	Departments []Department `json:"departments"`
+}
+
+type Department struct {
 	ID        uint      `gorm:"primary_key" json:"id"`
 	CreatedAt time.Time `json:"-"`
 	Name      string    `gorm:"size:40" json:"name"`
+	BranchID  uint      `json:"branch_id"`
+	// Branch    Branch    `json:"branch"`
 }

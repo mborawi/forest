@@ -36,9 +36,10 @@ func main() {
 	}
 	defer db.Close()
 	router := mux.NewRouter().StrictSlash(true)
-	router.HandleFunc("/api/list/branches", listbranchesHandler)
 	router.HandleFunc("/api/leaves/list", listleavesHandler)
 	router.HandleFunc("/api/leaves/{year:[0-9]+}/", listleavesHandler)
+	router.HandleFunc("/api/branch/list", listBranches)
+	router.HandleFunc("/api/department/{id:[0-9]+}", listDepartments)
 
 	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("../frontEnd/dist/static/"))))
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { http.ServeFile(w, r, "../frontEnd/dist/index.html") })
@@ -52,6 +53,25 @@ func notFound(w http.ResponseWriter, r *http.Request) {
 	log.Println("Flux Reactor not ready doc!...")
 }
 
+func listDepartments(w http.ResponseWriter, r *http.Request) {
+	deps := []models.Department{}
+	vars := mux.Vars(r)
+	br_id, _ := strconv.Atoi(vars["id"])
+	db.
+		Order("id").
+		Where("branch_id = ?", br_id).
+		Find(&deps)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(deps)
+}
+
+func listBranches(w http.ResponseWriter, r *http.Request) {
+	brs := []models.Branch{}
+	db.Order("id").Find(&brs)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(brs)
+}
+
 func listleavesHandler(w http.ResponseWriter, r *http.Request) {
 	lvs := []models.LeaveType{}
 	db.
@@ -59,14 +79,6 @@ func listleavesHandler(w http.ResponseWriter, r *http.Request) {
 		Find(&lvs)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(lvs)
-}
-func listbranchesHandler(w http.ResponseWriter, r *http.Request) {
-	brs := []models.Branch{}
-	db.
-		Order("id").
-		Find(&brs)
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(brs)
 }
 
 func listEmployeeLeavesYears(w http.ResponseWriter, r *http.Request) {

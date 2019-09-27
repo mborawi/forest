@@ -1,3 +1,18 @@
+DROP TABLE IF EXISTS branches CASCADE;
+ create table branches(
+ 	id SERIAL PRIMARY KEY,
+	name VARCHAR(50),
+ 	created_at timestamp DEFAULT CURRENT_TIMESTAMP
+);
+
+DROP TABLE IF EXISTS departments CASCADE;
+ create table departments (
+	id SERIAL PRIMARY KEY,
+	name VARCHAR(50),
+	branch_id int,
+	created_at timestamp DEFAULT CURRENT_TIMESTAMP
+);
+
 DROP TABLE IF EXISTS leave_ranges CASCADE;
  CREATE TABLE leave_ranges (
 	id SERIAL PRIMARY KEY,
@@ -43,13 +58,6 @@ DROP TABLE IF EXISTS employees CASCADE;
 
 DROP TABLE IF EXISTS  leave_names CASCADE;
  create table leave_names(
- 	id SERIAL PRIMARY KEY,
-	name VARCHAR(50),
- 	created_at timestamp DEFAULT CURRENT_TIMESTAMP
-);
-
-DROP TABLE IF EXISTS branches CASCADE;
- create table branches(
  	id SERIAL PRIMARY KEY,
 	name VARCHAR(50),
  	created_at timestamp DEFAULT CURRENT_TIMESTAMP

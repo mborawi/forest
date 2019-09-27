@@ -10,7 +10,22 @@ import (
 	"github.com/icrowley/fake"
 )
 
-func createFakeEmployees(N int) {
+func createFakeDepartments(N int) {
+	f, err := os.Create("departments.csv")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	w := bufio.NewWriter(f)
+	for i := 1; i <= N; i++ {
+		branchId := rand.Intn(10) + 1
+		fmt.Fprintf(w, "%d,%d,%s\n", i, branchId, fake.JobTitle())
+	}
+	w.Flush()
+	f.Close()
+}
+
+func createFakeEmployees(N int, deps int) {
 	f, err := os.Create("employees.csv")
 	if err != nil {
 		fmt.Println(err)
@@ -27,7 +42,7 @@ func createFakeEmployees(N int) {
 		sd := time.Date(time.Now().Year()-rand.Intn(20)-1,
 			mm, rand.Intn(28)+1, 0, 0, 0, 0, time.UTC)
 		jobTitle := fake.JobTitle()
-		branchId := rand.Intn(10) + 1
+		depId := rand.Intn(deps) + 1
 		managerID := rand.Intn(i) + 1
 		if i == 1 {
 			managerID = 0
@@ -36,7 +51,7 @@ func createFakeEmployees(N int) {
 			managerID = 1
 		}
 		fmt.Fprintf(w, "%d,%s,%s,%s,%s,%s,%d,%d,%s\n",
-			i, fname, lname, email, phone, jobTitle, branchId, managerID, sd.Format("2006-01-02 15:04:05"))
+			i, fname, lname, email, phone, jobTitle, depId, managerID, sd.Format("2006-01-02 15:04:05"))
 	}
 	w.Flush()
 	f.Close()
@@ -94,8 +109,10 @@ func main() {
 	NumberOfEmployees := 2000
 	StartYear := 2008
 	FinishYear := 2018
+	Departments := 200
 	rand.Seed(time.Now().Unix())
 	fmt.Println("creating fake data")
-	createFakeEmployees(NumberOfEmployees)
+	createFakeDepartments(200)
+	createFakeEmployees(NumberOfEmployees, Departments)
 	createRanges(NumberOfEmployees, StartYear, FinishYear)
 }

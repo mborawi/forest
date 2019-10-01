@@ -114,35 +114,17 @@ END;
 $leave_category_id$ LANGUAGE plpgsql VOLATILE;
 
 
-CREATE OR REPLACE FUNCTION team_leaves(empId integer, nyrs integer, incMan boolean) 
+CREATE OR REPLACE FUNCTION team_leaves(nyrs integer) 
 	RETURNS TABLE (dom text, pcount bigint, ucount bigint)
     AS $$
     BEGIN
-
-    IF incMan THEN
     	RETURN QUERY SELECT to_char(leave_date, 'dd-mm'),
 			COUNT(leave_name_id=1 OR NULL) AS PCOUNT,
 			COUNT(leave_name_id=2 OR NULL) AS UCOUNT 
-			FROM employees 
-			INNER JOIN leaves 
-			ON employees.id = leaves.employee_id 
-			WHERE  employees.manager_id = empId 
-			OR employees.id = empId 
-			AND leave_date >= now()-make_interval(years => nyrs)  
+			FROM leaves 
+			WHERE leave_date >= now()-make_interval(years => nyrs)  
 			GROUP BY to_char(leave_date, 'dd-mm')  
 			ORDER BY COUNT(leave_name_id=1 OR NULL) +  COUNT(leave_name_id=2 OR NULL) DESC;
-    ELSE
-    	RETURN QUERY SELECT to_char(leave_date, 'dd-mm'),
-			COUNT(leave_name_id=1 OR NULL) AS PCOUNT,
-			COUNT(leave_name_id=2 OR NULL) AS UCOUNT 
-			FROM employees 
-			INNER JOIN leaves 
-			ON employees.id = leaves.employee_id 
-			WHERE  employees.manager_id=empId  
-			AND leave_date >= now()-make_interval(years => nyrs)  
-			GROUP BY to_char(leave_date, 'dd-mm')  
-			ORDER BY COUNT(leave_name_id=1 OR NULL) +  COUNT(leave_name_id=2 OR NULL) DESC;
-    END IF;
     END;
     $$ LANGUAGE plpgsql
     VOLATILE;

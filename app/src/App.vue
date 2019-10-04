@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar app>
+    <v-app-bar>
       <v-toolbar-title class="headline text-uppercase">
         <span>Availability</span>
         <span class="font-weight-light">TOOL</span>
@@ -15,7 +15,7 @@
       </v-btn>
     </v-app-bar>
 
-    <v-content>
+    <v-content >
       <v-container fluid>
         <v-row class="justify-space-around">
           <v-col cols="12" sm="6">
@@ -43,6 +43,22 @@
             ></v-combobox>
           </v-col>
         </v-row>
+        <v-row>
+              <v-col cols="12">
+                <v-slider
+                  color="orange"
+                  track-color="grey"
+                  dense
+                  v-model="years"
+                  label="Years"
+                  min=1
+                  max=10
+                  ticks
+                  thumb-label
+                  @change="getLeaves()"
+                ></v-slider>
+              </v-col>
+            </v-row>
       </v-container>
       <TeamHeatMap  v-if="leaves" :CalendarData="leaves" />
     </v-content>
@@ -60,13 +76,13 @@ export default {
   },
   created:function() {
       this.console = window.console;
+      this.$vuetify.theme.dark = true;
       this.getDepartments();
       this.getLeaves();
   },
   methods:{
     getLeaves(){
-      this.leaves = null;
-      axios.get("/api/availability/4")
+      axios.get("/api/availability/"+this.years)
       .then((response)  =>  {
           this.leaves = response.data;
           // this.selectedBsl = null;
@@ -98,6 +114,7 @@ export default {
   },
   data: () => ({
     //
+    years: 5,
     leaves: null,
     selectedBsl: null,
     selectedCost: null,

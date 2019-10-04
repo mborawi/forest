@@ -1,5 +1,5 @@
 <template>
-  <v-container fluid>
+  <v-container fluid >
     <v-card v-if="CalendarData.ptotal + CalendarData.utotal > 0">
      <v-card-text >
       <!-- <div class="text-xs-center"> -->

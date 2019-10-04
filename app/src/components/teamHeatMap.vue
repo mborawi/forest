@@ -6,7 +6,6 @@
         <h2 class="text-xs-center">{{CalendarData.title}}</h2>
         <!-- </div> -->
       </v-card-text>
-      <v-card-media v-if="!tableView">
         <v-layout row>
           <v-flex class="calender-map">
             <svg viewBox="0 0 700 135" xmlns="http://www.w3.org/2000/svg" v-if="CalendarData.year">
@@ -30,132 +29,13 @@
 
             <path v-for="m in 12" :d="getPath(m)"
             class="border" fill="none" stroke="#000" stroke-width="2px"></path>
-
-            <!-- <text x="1.6em" dy="13.3em" fill="black" font-size="7px" font-weight="bold" v-if="showPlanned && CalendarData.pcounts.length > 0">Planned:</text> -->
-
-            <!-- <text x="1.6em" dy="14.8em" fill="black" font-size="7px" font-weight="bold" v-if="showUnplanned && CalendarData.ucounts.length > 0">Unplanned:</text> -->
-
-           <!--  <g v-for="(pl, ind) in CalendarData.pcounts" v-if="showPlanned">
-              <rect stroke="#666" :width="cSize/2" :height="cSize/2" 
-              :x="getLegendx(ind)+'em'" y="8.7em" :fill="colors[pl.cat_id-1]"> </rect>
-              <text :x="getLegendText(ind)+'em'" dy="13.3em" font-size="7px" fill="black">{{pl.cat}}</text>
-            </g>
-            <g v-for="(ul, ind) in CalendarData.ucounts" v-if="showUnplanned">
-              <rect  stroke="#666"  :width="cSize/2" :height="cSize/2" 
-              :x="getLegendx(ind)+'em'" y="9.8em" :fill="colors[ul.cat_id-1]"> </rect> 
-              <text :x="getLegendText(ind)+'em'" dy="14.8em" fill="black" font-size="7px">{{ul.cat}}</text>
-            </g> -->
           </g>
         </svg>
       </v-flex>
     </v-layout>
-  </v-card-media>
-    <v-card-text>
-      <v-layout align-top justify-space-around v-if="tableView"   class="tr pop-up-message grey lighten-3">
-      <v-flex xs4 class="my-3">
-        <v-card color="green lighten-5">
-          <v-card-title primary-title>
-            <div>
-              <h3 class="green--text text--darken-4">Planned Absences</h3>
-            </div>
-          </v-card-title>
-            <v-data-table
-            :headers="headers"
-            :items="CalendarData.pcounts"
-            hide-actions
-            class="elevation-1 pa-2"
-            >
-            <template slot="items" slot-scope="props">
-              <!-- <td class="text-xs-right">{{ props.item.name }}</td> -->
-              <td class="text-xs-left">{{ props.item.cat }}</td>
-              <td class="text-xs-center">{{ props.item.count }}</td>
-              <td class="text-xs-center">{{ props.item.count / countDays(CalendarData.pcounts) | percent }}</td>
-            </template>
-            <template slot="footer">
-              <td class="text-xs-left">
-                <strong>Planned Total:</strong> 
-              </td>
-              <td class="text-xs-center">
-                {{countDays(this.CalendarData.pcounts)}}
-              </td>
-              <td class="text-xs-center">100.0%</td>
-            </template>
-          </v-data-table>
-      </v-card>
-    </v-flex>
-     <v-flex xs3 class="my-3"> 
-          <v-card color="indigo lighten-5">
-            <v-card-title primary-title>
-              <div>
-                <h3 class="indigo--text text--darken-4">Unplanned Weekdays</h3>
-              </div>
-            </v-card-title>
-            <v-data-table
-            :headers="dowh"
-            :items="CalendarData.dows"
-            disable-initial-sort
-            hide-actions
-            class="elevation-1 pa-2">
-            <template slot="items" slot-scope="props">
-              <td class="text-xs-left">{{ props.item.day | capitalize }}</td>
-              <td class="text-xs-center">{{ props.item.count }}</td>
-              <td class="text-xs-center">{{ props.item.count / countDays(CalendarData.dows) | percent}}</td>
-            </template>
-            <template slot="footer">
-              <td class="text-xs-left">
-                <strong>Total:</strong> 
-              </td> 
-              <td class="text-xs-center">
-                {{ countDays(CalendarData.dows) }}
-              </td>
-              <td class="text-xs-center">100.0%</td>
-            </template>
-          </v-data-table>
-        </v-card>
-      </v-flex> 
-    <v-flex xs4 class="my-3">
-      <v-card color="red lighten-5">
-        <v-card-title primary-title>
-          <div>
-            <h3 class="red--text text--darken-4">Unplanned Absences</h3>
-          </div>
-        </v-card-title>
-          <v-data-table
-          :headers="headers"
-          :items="CalendarData.ucounts"
-          hide-actions
-          class="elevation-1 pa-2">
-          <template slot="items" slot-scope="props">
-            <!-- <td class="text-xs-right">{{ props.item.name }}</td> -->
-            <td class="text-xs-left">{{ props.item.cat }}</td>
-            <td class="text-xs-center">{{ props.item.count }}</td>
-            <td class="text-xs-center">{{ props.item.count / countDays(CalendarData.ucounts) | percent }}</td>
-          </template>
-          <template slot="footer">
-            <td class="text-xs-left">
-              <strong>Unplanned Total:</strong> 
-            </td>
-            <td class="text-xs-center">
-              {{countDays(this.CalendarData.ucounts)}}
-            </td>
-            <td class="text-xs-center">100.0%</td>
-          </template>
-        </v-data-table>
-    </v-card>
-  </v-flex> 
-  </v-layout>
-  </v-card-text>
+   
   <v-card-actions>
-  <v-btn color="pink darken-4" flat v-on:click="flipView()" v-if="!tableView" >
-    <v-icon left>table_chart</v-icon>
-    Statistics
-  </v-btn>
-  <v-btn color="info" flat v-on:click="flipView()" v-if="tableView" >
-    <v-icon left dark>insert_chart_outlined</v-icon>
-    Calendar
-  </v-btn>
-
-    <v-flex xs2 offset-xs9 v-if="!tableView">
+    <v-flex xs2 offset-xs9 >
       <v-radio-group v-model="viewMode" column>
         <v-radio label="All" value="total" color="blue darken-3"></v-radio>
         <v-radio label="Planned" value="planned" color="green darken-3"></v-radio>
@@ -180,19 +60,8 @@ export default {
     showPlanned: true,
     showUnplanned: true,
     legend: {},
-    test: "hello",
-    headers:[
-    { text: 'Category', value: 'cat', align:'center', class:'grey lighten-4' , sortable: false},
-    { text: 'Count', value: 'count', align:'center', class:'grey lighten-4'  , sortable: false},
-    { text: 'Percentage', value: '', align:'center', class:'grey lighten-4' , sortable: false },
-    ],
-    dowh: [
-    { text: 'Weekday' , value:'day',   align:'left',  class:'grey lighten-4', sortable: false },
-    { text: 'Absences', value:'count', align:'left', class:'grey lighten-4' , sortable: false },
-    { text: '%', value: '', align:'center', class:'grey lighten-4' , sortable: false }],
     plannedDays:{},
     unplannedDays:{},
-    tableView : false,
     viewMode: "unplanned", // "planned","unplanned","total" 
     AllDays: [],
 
@@ -206,9 +75,6 @@ export default {
       planned:'#1B5E20'}
   }),
   methods: {
-    flipView: function(){
-      this.tableView = !this.tableView;
-    },
     countDays:function(days){
       var dcount = 0;
       for (var i = 0; i< days.length; i++){
@@ -219,10 +85,10 @@ export default {
     countAll: function(upls , pls){
       return this.countDays(upls) + this.countDays(pls);
     },
-    getLegendx: function(index,planned=true){
+    getLegendx: function(index){
       return 10*(index)+5;
     },
-    getLegendText: function(index,planned=true){
+    getLegendText: function(index){
       return 10*(index)+ index * 4.3 + 8.4;
     },
     weekNo: function(daDate){
@@ -240,14 +106,11 @@ export default {
       switch(this.viewMode){
         case "planned":
           return ( kw in this.plannedDays  && this.plannedDays[kw] > 0 );
-          break;
         case "unplanned":
           return (  kw in  this.unplannedDays  && this.unplannedDays[kw] >0 );
-          break;
         case "total":
         default:
           return ( kw in this.plannedDays  && this.plannedDays[kw] > 0 ) || (  kw in  this.unplannedDays  && this.unplannedDays[kw] >0 );
-          break;
       }
       
     },
@@ -256,47 +119,32 @@ export default {
       var kw = m.format("DD-MM");
       var dt = m.format("DD-MMM-YYYY") ;
       var count = 0;
-      var max = 0;
-      var min = 0;
       switch(this.viewMode){
         case "planned":
           count = this.plannedDays[kw];
-          min = this.CalendarData.pmin;
-          max = this.CalendarData.pmax;
           break;
         case "unplanned":
           count = this.unplannedDays[kw];
-          min = this.CalendarData.umin;
-          max = this.CalendarData.umax;
           break;
         case "total":
         default:
         if (this.unplannedDays[kw]==undefined && this.plannedDays[kw]==undefined) {
           count = 0;
-          min = 0;
-          max = 0;
         } else if (this.plannedDays[kw]==undefined){
           count = this.unplannedDays[kw];
-          min = this.CalendarData.umin;
-          max = this.CalendarData.umax;
         }else if(this.unplannedDays[kw]==undefined){
           count = this.plannedDays[kw];
-          min = this.CalendarData.pmin;
-          max = this.CalendarData.pmax;
         }else{
           count = this.plannedDays[kw] + this.unplannedDays[kw];
-          min = Math.min(this.CalendarData.umin, this.CalendarData.pmin);
-          max = this.CalendarData.umax + this.CalendarData.pmax;
           break;
         }
           
       }
-      return dt+": " + count + " absences, range: [" + min + ".." + max + "]" ;
+      return dt+": " + count + " absences." ;
     },
     getColor: function(daDate) {
       var m = moment(daDate);
       var kw = m.format("DD-MM");
-      var z = 0.0;
       var color = this.colors[this.viewMode];
 
       if( this.viewMode === 'planned' &&  ( kw in  this.plannedDays ) && this.plannedDays[kw] > 0 ){
@@ -371,7 +219,6 @@ export default {
       + "H" + (w0 + 1) * this.cSize + "Z";
     },
     generateDates: function() {
-      console.log("===>>",this.CalendarData.year);
       var fromDate = new Date(Date.UTC(this.CalendarData.year, 0, 1));
       var ToDate = new Date(Date.UTC(this.CalendarData.year,11,31));
       this.AllDays.push(fromDate);
@@ -382,6 +229,7 @@ export default {
     }
   },
   created: function () {
+    this.console = window.console;
     this.generateDates();
     var fd_dow = new Date(Date.UTC(this.CalendarData.year,0,1)).getDay();
     this.firstSunday = new Date(Date.UTC(this.CalendarData.year, 0, 1 - fd_dow));

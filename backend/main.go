@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math"
 	"net/http"
 	"strconv"
 	"strings"
@@ -88,7 +89,7 @@ func listAvailability(w http.ResponseWriter, r *http.Request) {
 	res.Year = time.Now().Year()
 	vars := mux.Vars(r)
 	yrs, _ := strconv.Atoi(vars["yrs"])
-	res.Title = fmt.Sprintf("Direct Reports Absences for %d years as of %d",
+	res.Title = fmt.Sprintf("Cumulative Leaves for %d years as of %d",
 		yrs, res.Year)
 	res.FileTitle = strings.Replace(res.Title, " ", "_", 0)
 
@@ -113,6 +114,10 @@ func listAvailability(w http.ResponseWriter, r *http.Request) {
 	}
 	tcs := []cc{}
 	db.Raw("SELECT * FROM team_leaves(?)", yrs).Scan(&tcs)
+	pmax := uint(0)
+	umax := uint(0)
+	pmin := uint(math.MaxUint32)
+	umin := uint(math.MaxUint32)
 	for _, t := range tcs {
 		if t.Dom == "29-02" && !isLeap(res.Year) {
 			continue
@@ -120,13 +125,30 @@ func listAvailability(w http.ResponseWriter, r *http.Request) {
 		if t.Pcount != 0 {
 			res.PDays[t.Dom] = t.Pcount
 			res.PTotal += t.Pcount
+			if pmax < t.Pcount {
+				pmax = t.Pcount
+			}
+			if pmin > t.Pcount {
+				pmin = t.Pcount
+			}
 		}
 		if t.Ucount != 0 {
 			res.UDays[t.Dom] = t.Ucount
 			res.UTotal += t.Ucount
-		}
-	}
 
+			if umax < t.Ucount {
+				umax = t.Ucount
+			}
+			if umin > t.Ucount {
+				umin = t.Ucount
+			}
+		}
+
+	}
+	res.UMax = umax
+	res.UMin = umin
+	res.PMax = pmax
+	res.PMin = pmin
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(res)
 }

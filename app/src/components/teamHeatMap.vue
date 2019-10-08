@@ -1,6 +1,6 @@
 <template>
-  <v-container fluid >
-    <v-card v-if="CalendarData.ptotal + CalendarData.utotal > 0">
+  <v-container fluid  class="pb-0 pt-0">
+    <v-card>
      <v-card-text >
       <!-- <div class="text-xs-center"> -->
         <h2 class="text-xs-center">{{CalendarData.title}}</h2>
@@ -119,34 +119,40 @@ export default {
       var kw = m.format("DD-MM");
       var dt = m.format("DD-MMM-YYYY") ;
       var count = 0;
+      var max = 10000;
       switch(this.viewMode){
         case "planned":
           count = this.plannedDays[kw];
+          max = this.CalendarData.pmax;
           break;
         case "unplanned":
           count = this.unplannedDays[kw];
+          max = this.CalendarData.umax;
           break;
         case "total":
         default:
-        if (this.unplannedDays[kw]==undefined && this.plannedDays[kw]==undefined) {
-          count = 0;
-        } else if (this.plannedDays[kw]==undefined){
-          count = this.unplannedDays[kw];
-        }else if(this.unplannedDays[kw]==undefined){
-          count = this.plannedDays[kw];
-        }else{
-          count = this.plannedDays[kw] + this.unplannedDays[kw];
-          break;
-        }
+          if (this.unplannedDays[kw]==undefined && this.plannedDays[kw]==undefined) {
+            count = 0;
+          } else if (this.plannedDays[kw]==undefined){
+            count = this.unplannedDays[kw];
+          }else if(this.unplannedDays[kw]==undefined){
+            count = this.plannedDays[kw];
+          }else{
+            count = this.plannedDays[kw] + this.unplannedDays[kw];
+            break;
+          }
+          max = Math.max(this.CalendarData.pmax,this.CalendarData.umax) ;
           
       }
-      return dt+": " + count + " absences." ;
+      return dt+": " + count + " absences.";
     },
     getColor: function(daDate) {
       var m = moment(daDate);
       var kw = m.format("DD-MM");
       var color = this.colors[this.viewMode];
-
+      if ( m.weekday()%6==0){
+          return "#595959";
+        }
       if( this.viewMode === 'planned' &&  ( kw in  this.plannedDays ) && this.plannedDays[kw] > 0 ){
         return color;
       }
@@ -156,13 +162,14 @@ export default {
       if ( this.viewMode === 'total' && ( kw in  this.plannedDays || kw in  this.unplannedDays ) ){
         return color;
       }
-      if ( m.weekday()%6==0){
-          return "#595959";
-        }
+      
       return "#424242";
     },
     getOpacity: function(daDate) {
       var m = moment(daDate);
+      if ( m.weekday()%6==0){
+          return 0.5;
+      }
       var kw = m.format("DD-MM");
       var count = 0;
       var min = 0, max = 0;
@@ -196,8 +203,10 @@ export default {
       if (count == 0){
         return 1.0;
       }
-      var base = 0.22;
-      return (count - min)/(max - min) * (1 - base) + base  ;
+      // var base = 0.22;
+      var res =  (count - min)/(max - min);// * (1 - base) + base  ;
+      console.log(kw,"=== ",count, ":", res);
+      return res;
     },
     getTranslation: function(i){
       return "translate("+ (8+ i* 4.3 * this.cSize) + ",-3)";

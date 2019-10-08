@@ -18,33 +18,30 @@
     <v-content >
       <v-container fluid>
         <v-row class="justify-space-around">
-          <v-col cols="12" sm="6">
+          <v-col cols="12" sm="6" class="pb-0">
             <v-combobox
               v-model="selectedBsl"
               :items="BSLs"
               item-text="name"
               item-value="id"
               label="Business Lines"
-              chips
               outlined
               @change="getBranches()"
             ></v-combobox>
           </v-col>
-          <v-col cols="12" sm="6">
+          <v-col cols="12" sm="6" class="pb-0">
             <v-combobox
               v-model="selectedCost"
               :items="CostCentres"
               item-text="name"
               label="Cost Centre"
-              multiple
               outlined
               :disabled="selectedBsl==null"
-              chips
             ></v-combobox>
           </v-col>
         </v-row>
         <v-row>
-              <v-col cols="12">
+              <v-col cols="12" class="pb-0">
                 <v-slider
                   color="orange"
                   track-color="grey"
@@ -76,13 +73,14 @@ export default {
   },
   created:function() {
       this.console = window.console;
-      this.$vuetify.theme.dark = true;
+      // this.$vuetify.theme.dark = true;
       this.getDepartments();
       this.getLeaves();
   },
   methods:{
     getLeaves(){
-      axios.get("/api/availability/"+this.years)
+      var q ={ years: this.years};
+      axios.get("/api/availability", {params:q})
       .then((response)  =>  {
           this.leaves = response.data;
           // this.selectedBsl = null;
@@ -91,21 +89,22 @@ export default {
         });
     },
     getDepartments(){
-        this.BSLs = [];
+        this.BSLs = [{id:0,name:'All'}];
         axios.get("/api/branch/list")
           .then((response)  =>  {
-              this.BSLs = response.data;
+              this.BSLs=response.data;
               // this.selectedBsl = null;
             }, (error)  =>  {
               console.log(error);
             });
     },
     getBranches(){
-        this.selectedCost = null;
-        this.CostCentres = [];
+        this.selectedCost = {id:0,name:'All'};
+        this.CostCentres = [{id:0,name:'All'}];
         axios.get("/api/department/"+this.selectedBsl.id)
           .then((response)  =>  {
               this.CostCentres = response.data;
+              this.CostCentres.unshift({id:0,name:'All'});
               // this.selectedBsl = null;
             }, (error)  =>  {
               console.log(error);
@@ -116,10 +115,10 @@ export default {
     //
     years: 5,
     leaves: null,
-    selectedBsl: null,
-    selectedCost: null,
+    selectedBsl: "All",
+    selectedCost: 'All',
     BSLs : ['All','ATOP','ATOF','EST','SDP'],
-    CostCentres: ['u5733', 'u7543', 't6744'],
+    CostCentres: ['All','u5733', 'u7543', 't6744'],
   }),
 };
 </script>

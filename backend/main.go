@@ -40,7 +40,7 @@ func main() {
 	router.HandleFunc("/api/leaves/{year:[0-9]+}/", listleavesHandler)
 	router.HandleFunc("/api/branch/list", listBranches)
 	router.HandleFunc("/api/department/{id:[0-9]+}", listDepartments)
-	router.HandleFunc("/api/availability/{yrs:[0-9]+}", listAvailability)
+	router.HandleFunc("/api/availability", listAvailability)
 
 	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("../frontEnd/dist/static/"))))
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { http.ServeFile(w, r, "../frontEnd/dist/index.html") })
@@ -83,14 +83,27 @@ func listleavesHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func listAvailability(w http.ResponseWriter, r *http.Request) {
+	BSL := "All"
+	CostCentre := "All"
+	years := 10
+	if len(r.FormValue("bsl")) > 0 {
+		BSL = r.FormValue("bsl")
+	}
+	if len(r.FormValue("centre")) > 0 {
+		CostCentre = r.FormValue("centre")
+	}
+	if len(r.FormValue("years")) > 0 {
+		if tmp, err := strconv.Atoi(r.FormValue("years")); err == nil {
+			years = tmp
+		}
+	}
+	log.Println(BSL, CostCentre)
 	res := team_result{}
 	res.PDays = make(map[string]uint)
 	res.UDays = make(map[string]uint)
 	res.Year = time.Now().Year()
-	vars := mux.Vars(r)
-	yrs, _ := strconv.Atoi(vars["yrs"])
-	res.Title = fmt.Sprintf("Cumulative Leaves for %d years as of %d",
-		yrs, res.Year)
+	res.Title = fmt.Sprintf("Leaves for %d years as of %d",
+		years, res.Year)
 	res.FileTitle = strings.Replace(res.Title, " ", "_", 0)
 
 	st := time.Date(res.Year-10, 1, 1, 0, 0, 0, 0, time.UTC)
@@ -113,7 +126,7 @@ func listAvailability(w http.ResponseWriter, r *http.Request) {
 		Ucount uint
 	}
 	tcs := []cc{}
-	db.Raw("SELECT * FROM team_leaves(?)", yrs).Scan(&tcs)
+	db.Raw("SELECT * FROM team_leaves(?)", years).Scan(&tcs)
 	pmax := uint(0)
 	umax := uint(0)
 	pmin := uint(math.MaxUint32)

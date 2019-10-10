@@ -101,7 +101,6 @@ func listAvailability(w http.ResponseWriter, r *http.Request) {
 			years = tmp
 		}
 	}
-	log.Println(years, BSL, CostCentre)
 	res := team_result{}
 	res.PDays = make(map[string]uint)
 	res.UDays = make(map[string]uint)
@@ -135,7 +134,6 @@ func listAvailability(w http.ResponseWriter, r *http.Request) {
 	} else if CostCentre == 0 {
 		db.Raw("SELECT * FROM team_leaves_bsl(?,?)", years, BSL).Scan(&tcs)
 	} else {
-		log.Println("==>>", years, CostCentre)
 		db.Raw("SELECT * FROM team_leaves_cost(?,?)", years, CostCentre).Scan(&tcs)
 	}
 	pmax := uint(0)

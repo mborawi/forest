@@ -8,10 +8,17 @@
       <v-spacer></v-spacer>
       <v-btn
         text
-        href="https://github.com/vuetifyjs/vuetify/releases/latest"
-        target="_blank"
+        color="warning"
+        outlined
       >
-        <span class="mr-2">Gallery</span>
+        <span>Gallery</span>
+      </v-btn>
+      <v-btn
+        text
+        color="success"
+        outlined
+      >
+        <span>Feedback</span>
       </v-btn>
     </v-app-bar>
 

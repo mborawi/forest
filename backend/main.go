@@ -83,21 +83,25 @@ func listleavesHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func listAvailability(w http.ResponseWriter, r *http.Request) {
-	BSL := "All"
-	CostCentre := "All"
+	BSL := 0
+	CostCentre := 0
 	years := 10
 	if len(r.FormValue("bsl")) > 0 {
-		BSL = r.FormValue("bsl")
+		if tmp, err := strconv.Atoi(r.FormValue("bsl")); err == nil {
+			BSL = tmp
+		}
 	}
-	if len(r.FormValue("centre")) > 0 {
-		CostCentre = r.FormValue("centre")
+	if len(r.FormValue("cost")) > 0 {
+		if tmp, err := strconv.Atoi(r.FormValue("cost")); err == nil {
+			CostCentre = tmp
+		}
 	}
 	if len(r.FormValue("years")) > 0 {
 		if tmp, err := strconv.Atoi(r.FormValue("years")); err == nil {
 			years = tmp
 		}
 	}
-	log.Println(BSL, CostCentre)
+	log.Println(years, BSL, CostCentre)
 	res := team_result{}
 	res.PDays = make(map[string]uint)
 	res.UDays = make(map[string]uint)
@@ -106,19 +110,19 @@ func listAvailability(w http.ResponseWriter, r *http.Request) {
 		years, res.Year)
 	res.FileTitle = strings.Replace(res.Title, " ", "_", 0)
 
-	st := time.Date(res.Year-10, 1, 1, 0, 0, 0, 0, time.UTC)
-	ft := time.Date(res.Year+1, 1, 1, 0, 0, 0, 0, time.UTC)
-	dows := []DayCounts{}
-	db.
-		Table("leaves").
-		Select("EXTRACT(dow FROM leave_date) as DOW, to_char(leave_date,'day') as Day, count(leave_date) as Count").
-		Where("leave_date >= ?", st).
-		Where("leave_date < ?", ft).
-		Where("EXTRACT(dow FROM leave_date) IN (1,2,3,4,5)").
-		Group("EXTRACT(dow FROM leave_date),to_char(leave_date,'day')").
-		Order("Count DESC, DOW").
-		Scan(&dows)
-	res.Dows = dows
+	// st := time.Date(res.Year-years, 1, 1, 0, 0, 0, 0, time.UTC)
+	// ft := time.Date(res.Year+1, 1, 1, 0, 0, 0, 0, time.UTC)
+	// dows := []DayCounts{}
+	// db.
+	// 	Table("leaves").
+	// 	Select("EXTRACT(dow FROM leave_date) as DOW, to_char(leave_date,'day') as Day, count(leave_date) as Count").
+	// 	Where("leave_date >= ?", st).
+	// 	Where("leave_date < ?", ft).
+	// 	Where("EXTRACT(dow FROM leave_date) IN (1,2,3,4,5)").
+	// 	Group("EXTRACT(dow FROM leave_date),to_char(leave_date,'day')").
+	// 	Order("Count DESC, DOW").
+	// 	Scan(&dows)
+	// res.Dows = dows
 
 	type cc struct {
 		Dom    string
@@ -126,7 +130,14 @@ func listAvailability(w http.ResponseWriter, r *http.Request) {
 		Ucount uint
 	}
 	tcs := []cc{}
-	db.Raw("SELECT * FROM team_leaves(?)", years).Scan(&tcs)
+	if CostCentre == 0 && BSL == 0 {
+		db.Raw("SELECT * FROM team_leaves_years(?)", years).Scan(&tcs)
+	} else if CostCentre == 0 {
+		db.Raw("SELECT * FROM team_leaves_bsl(?,?)", years, BSL).Scan(&tcs)
+	} else {
+		log.Println("==>>", years, CostCentre)
+		db.Raw("SELECT * FROM team_leaves_cost(?,?)", years, CostCentre).Scan(&tcs)
+	}
 	pmax := uint(0)
 	umax := uint(0)
 	pmin := uint(math.MaxUint32)

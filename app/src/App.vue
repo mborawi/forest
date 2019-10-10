@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar>
+    <v-app-bar max-height=70>
       <v-toolbar-title class="headline text-uppercase">
         <span>Availability</span>
         <span class="font-weight-light">TOOL</span>
@@ -26,7 +26,7 @@
               item-value="id"
               label="Business Lines"
               outlined
-              @change="getBranches()"
+              @change="getCostCentres()"
             ></v-combobox>
           </v-col>
           <v-col cols="12" sm="6" class="pb-0">
@@ -37,13 +37,14 @@
               label="Cost Centre"
               outlined
               :disabled="selectedBsl==null"
+              @change="CostCentresChanged()"
             ></v-combobox>
           </v-col>
         </v-row>
         <v-row>
               <v-col cols="12" class="pb-0">
                 <v-slider
-                  color="orange"
+                  color="red"
                   track-color="grey"
                   dense
                   v-model="years"
@@ -74,37 +75,47 @@ export default {
   created:function() {
       this.console = window.console;
       // this.$vuetify.theme.dark = true;
-      this.getDepartments();
+      this.getBSLs();
       this.getLeaves();
   },
   methods:{
     getLeaves(){
-      var q ={ years: this.years};
+      var q ={ years: this.years, bsl: this.selectedBsl.id, cost:this.selectedCost.id};
+          // this.leaves = null;
       axios.get("/api/availability", {params:q})
       .then((response)  =>  {
+          this.leaves = null;
           this.leaves = response.data;
           // this.selectedBsl = null;
         }, (error)  =>  {
           console.log(error);
         });
     },
-    getDepartments(){
+    getBSLs(){
         this.BSLs = [{id:0,name:'All'}];
         axios.get("/api/branch/list")
           .then((response)  =>  {
               this.BSLs=response.data;
+              this.BSLs.unshift({id:0,name:'All'});
               // this.selectedBsl = null;
             }, (error)  =>  {
               console.log(error);
             });
     },
-    getBranches(){
+    CostCentresChanged(){
+        console.log("cost Centre changed");
+        // this.leaves = null;
+        this.getLeaves();
+
+    },
+    getCostCentres(){
         this.selectedCost = {id:0,name:'All'};
         this.CostCentres = [{id:0,name:'All'}];
         axios.get("/api/department/"+this.selectedBsl.id)
           .then((response)  =>  {
               this.CostCentres = response.data;
               this.CostCentres.unshift({id:0,name:'All'});
+              this.getLeaves();
               // this.selectedBsl = null;
             }, (error)  =>  {
               console.log(error);
@@ -117,8 +128,8 @@ export default {
     leaves: null,
     selectedBsl: "All",
     selectedCost: 'All',
-    BSLs : ['All','ATOP','ATOF','EST','SDP'],
-    CostCentres: ['All','u5733', 'u7543', 't6744'],
+    BSLs : [],
+    CostCentres: ['All'],
   }),
 };
 </script>

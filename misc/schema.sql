@@ -50,7 +50,7 @@ DROP TABLE IF EXISTS employees CASCADE;
 	email VARCHAR(80),
 	phone VARCHAR(25),
 	job_title VARCHAR(100),
-	branch_id integer,
+	department_id integer,
 	manager_id integer,
 	start_date timestamp,
 	created_at timestamp DEFAULT CURRENT_TIMESTAMP
@@ -113,8 +113,7 @@ BEGIN
 END;
 $leave_category_id$ LANGUAGE plpgsql VOLATILE;
 
-
-CREATE OR REPLACE FUNCTION team_leaves(nyrs integer) 
+CREATE OR REPLACE FUNCTION team_leaves_years(nyrs integer) 
 	RETURNS TABLE (dom text, pcount bigint, ucount bigint)
     AS $$
     BEGIN
@@ -129,5 +128,44 @@ CREATE OR REPLACE FUNCTION team_leaves(nyrs integer)
     $$ LANGUAGE plpgsql
     VOLATILE;
 
+CREATE OR REPLACE FUNCTION team_leaves_bsl(nyrs integer, bsl integer) 
+	RETURNS TABLE (dom text, pcount bigint, ucount bigint)
+    AS $$
+    BEGIN
+    	RETURN QUERY SELECT to_char(leave_date, 'dd-mm'),
+			COUNT(leave_name_id=1 OR NULL) AS PCOUNT,
+			COUNT(leave_name_id=2 OR NULL) AS UCOUNT 
+			FROM leaves 
+			INNER JOIN employees
+			ON leaves.employee_id = employees.id
+			INNER JOIN departments 
+			ON departments.id = employees.department_id
+			INNER JOIN branches
+			ON departments.branch_id = branches.id
+			WHERE leave_date >= now()-make_interval(years => nyrs)  
+			AND branch_id = bsl
+			GROUP BY to_char(leave_date, 'dd-mm')  
+			ORDER BY COUNT(leave_name_id=1 OR NULL) +  COUNT(leave_name_id=2 OR NULL) DESC;
+    END;
+    $$ LANGUAGE plpgsql
+    VOLATILE;
+
+CREATE OR REPLACE FUNCTION team_leaves_cost(nyrs integer, cost integer) 
+	RETURNS TABLE (dom text, pcount bigint, ucount bigint)
+    AS $$
+    BEGIN
+    	RETURN QUERY SELECT to_char(leave_date, 'dd-mm'),
+			COUNT(leave_name_id=1 OR NULL) AS PCOUNT,
+			COUNT(leave_name_id=2 OR NULL) AS UCOUNT 
+			FROM leaves 
+			INNER JOIN employees
+			ON leaves.employee_id = employees.id
+			WHERE leave_date >= now()-make_interval(years => nyrs)  
+			AND employees.department_id = cost
+			GROUP BY to_char(leave_date, 'dd-mm')  
+			ORDER BY COUNT(leave_name_id=1 OR NULL) +  COUNT(leave_name_id=2 OR NULL) DESC;
+    END;
+    $$ LANGUAGE plpgsql
+    VOLATILE;
 
 

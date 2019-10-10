@@ -4,7 +4,7 @@ go run generator.go &&
 psql -d heat -f schema.sql &&
 psql -d heat -c "\copy branches (id,name) FROM  'lookupData/branchNames.csv' WITH (FORMAT csv);"&&
 psql -d heat -c "\copy departments (id,branch_id,name) FROM 'departments.csv' WITH (FORMAT csv);" && 
-psql -d heat -c "\copy employees (id,first_name,last_name,email,phone,job_title,branch_id,manager_id,start_date) FROM 'employees.csv' WITH (FORMAT csv);" && 
+psql -d heat -c "\copy employees (id,first_name,last_name,email,phone,job_title,department_id,manager_id,start_date) FROM 'employees.csv' WITH (FORMAT csv);" && 
 psql -d heat -c "\copy leave_ranges (id,employee_id,start,finish,hours,name,category,type) FROM 'LeaveRanges.csv' WITH (FORMAT csv);" && 
 psql -d heat -c "\copy leave_names (id,name) FROM 'lookupData/LeaveNames.csv' WITH (FORMAT csv);" &&
 psql -d heat -c "\copy leave_categories (id,name) FROM 'lookupData/LeaveCategories.csv' WITH (FORMAT csv);" &&

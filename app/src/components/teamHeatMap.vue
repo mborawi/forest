@@ -62,7 +62,7 @@ export default {
     legend: {},
     plannedDays:{},
     unplannedDays:{},
-    viewMode: "unplanned", // "planned","unplanned","total" 
+    viewMode: "total", // "planned","unplanned","total" 
     AllDays: [],
 
     cSize :12,
@@ -105,12 +105,12 @@ export default {
       var kw = m.format("DD-MM");
       switch(this.viewMode){
         case "planned":
-          return ( kw in this.plannedDays  && this.plannedDays[kw] > 0 );
+          return ( kw in this.CalendarData.pdays && this.CalendarData.pdays[kw] > 0 );
         case "unplanned":
-          return (  kw in  this.unplannedDays  && this.unplannedDays[kw] >0 );
+          return (  kw in  this.CalendarData.udays  && this.CalendarData.udays[kw] >0 );
         case "total":
         default:
-          return ( kw in this.plannedDays  && this.plannedDays[kw] > 0 ) || (  kw in  this.unplannedDays  && this.unplannedDays[kw] >0 );
+          return ( kw in this.CalendarData.pdays  && this.CalendarData.pdays[kw] > 0 ) || (  kw in  this.CalendarData.udays  && this.CalendarData.udays[kw] >0 );
       }
       
     },
@@ -122,23 +122,23 @@ export default {
       var max = 10000;
       switch(this.viewMode){
         case "planned":
-          count = this.plannedDays[kw];
+          count = this.CalendarData.pdays[kw];
           max = this.CalendarData.pmax;
           break;
         case "unplanned":
-          count = this.unplannedDays[kw];
+          count = this.CalendarData.udays[kw];
           max = this.CalendarData.umax;
           break;
         case "total":
         default:
-          if (this.unplannedDays[kw]==undefined && this.plannedDays[kw]==undefined) {
+          if (this.CalendarData.udays[kw]==undefined && this.CalendarData.pdays[kw]==undefined) {
             count = 0;
-          } else if (this.plannedDays[kw]==undefined){
-            count = this.unplannedDays[kw];
-          }else if(this.unplannedDays[kw]==undefined){
-            count = this.plannedDays[kw];
+          } else if (this.CalendarData.pdays[kw]==undefined){
+            count = this.CalendarData.udays[kw];
+          }else if(this.CalendarData.udays[kw]==undefined){
+            count = this.CalendarData.pdays[kw];
           }else{
-            count = this.plannedDays[kw] + this.unplannedDays[kw];
+            count = this.CalendarData.pdays[kw] + this.CalendarData.udays[kw];
             break;
           }
           max = Math.max(this.CalendarData.pmax,this.CalendarData.umax) ;
@@ -153,13 +153,13 @@ export default {
       if ( m.weekday()%6==0){
           return "#595959";
         }
-      if( this.viewMode === 'planned' &&  ( kw in  this.plannedDays ) && this.plannedDays[kw] > 0 ){
+      if( this.viewMode === 'planned' &&  ( kw in  this.CalendarData.pdays ) && this.CalendarData.pdays[kw] > 0 ){
         return color;
       }
-      if( this.viewMode === 'unplanned' && ( kw in  this.unplannedDays ) && this.unplannedDays[kw] >0 ){
+      if( this.viewMode === 'unplanned' && ( kw in  this.CalendarData.udays ) && this.CalendarData.udays[kw] >0 ){
         return color;
       }
-      if ( this.viewMode === 'total' && ( kw in  this.plannedDays || kw in  this.unplannedDays ) ){
+      if ( this.viewMode === 'total' && ( kw in  this.CalendarData.pdays || kw in  this.CalendarData.udays ) ){
         return color;
       }
       
@@ -177,26 +177,26 @@ export default {
         case "planned":
           max = this.CalendarData.pmax;
           min = this.CalendarData.pmin;
-          if (kw in this.plannedDays){
-            count = this.plannedDays[kw];
+          if (kw in this.CalendarData.pdays){
+            count = this.CalendarData.pdays[kw];
           }
           break;
         case "unplanned":
           max = this.CalendarData.umax;
           min = this.CalendarData.umin;
-          if (kw in this.unplannedDays){
-            count = this.unplannedDays[kw];
+          if (kw in this.CalendarData.udays){
+            count = this.CalendarData.udays[kw];
           }
           break;
         case "total":
         default:
           max = Math.max(this.CalendarData.pmax,this.CalendarData.umax) ;
           min = Math.min(this.CalendarData.pmin,this.CalendarData.umin) ;
-          if (kw in this.plannedDays){
-            count = this.plannedDays[kw];
+          if (kw in this.CalendarData.pdays){
+            count = this.CalendarData.pdays[kw];
           }
-          if (kw in this.unplannedDays){
-            count += this.unplannedDays[kw];
+          if (kw in this.CalendarData.udays){
+            count += this.CalendarData.udays[kw];
           }
       } 
 
@@ -205,7 +205,7 @@ export default {
       }
       // var base = 0.22;
       var res =  (count - min)/(max - min);// * (1 - base) + base  ;
-      console.log(kw,"=== ",count, ":", res);
+      // console.log(kw,"=== ",count, ":", res);
       return res;
     },
     getTranslation: function(i){
@@ -242,8 +242,8 @@ export default {
     this.generateDates();
     var fd_dow = new Date(Date.UTC(this.CalendarData.year,0,1)).getDay();
     this.firstSunday = new Date(Date.UTC(this.CalendarData.year, 0, 1 - fd_dow));
-    this.plannedDays = this.CalendarData.pdays;
-    this.unplannedDays = this.CalendarData.udays;
+    // this.plannedDays = this.CalendarData.pdays;
+    // this.unplannedDays = this.CalendarData.udays;
     
   },
   props:['CalendarData', 'LeaveTypes'],
